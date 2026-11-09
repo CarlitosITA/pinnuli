@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
-import { INSTRUCTION_ICONS, MEDICATION_FORMS, MOMENTS, patientDay } from '@pinnuli/core';
+import { INSTRUCTION_ICONS, MEDICATION_FORMS, MOMENTS, addDays, localToUtc, patientDay, type Hhmm } from '@pinnuli/core';
 import { audit } from './audit';
 import { schema, type Db } from './db/client';
 import { notify } from './hub';
@@ -357,14 +357,32 @@ export async function caregiverDoseAction(
   db: Db,
   patientId: string,
   actor: string,
-  input: { doseKey: string; type: 'taken' | 'not_taken' | 'undo'; reason?: string | null; at?: number },
+  input: { doseKey: string; type: 'taken' | 'not_taken' | 'undo'; reason?: string | null; at?: number; time?: string },
   now = Date.now(),
 ) {
-  const at = Math.min(input.at ?? now, now);
+  let when = input.at;
+  if (input.time) {
+    // «L'ha presa alle 08:40»: l'ora vera, non quella in cui il familiare se ne accorge.
+    if (input.type !== 'taken') throw new CommandError('L’ora si può indicare solo per una dose presa', 400);
+    const [dose] = await db.select().from(schema.doses).where(and(eq(schema.doses.key, input.doseKey), eq(schema.doses.patientId, patientId)));
+    if (!dose) throw new CommandError('Dose non trovata', 404);
+    const [patient] = await db.select({ tz: schema.patients.tz }).from(schema.patients).where(eq(schema.patients.id, patientId));
+    const tz = patient?.tz ?? 'Europe/Rome';
+    when = localToUtc(dose.day, input.time as Hhmm, tz);
+    // Dopo la mezzanotte (la giornata finisce alle 04:00): «00:30» per una dose delle 23:00 è la notte dopo.
+    if (when < dose.scheduledAt - 3 * 3600_000) when = localToUtc(addDays(dose.day, 1), input.time as Hhmm, tz);
+    if (when > now) throw new CommandError('Quest’ora non è ancora arrivata', 400);
+    // Le risposte si ordinano per ora reale: una risposta più recente coprirebbe questa. Solo per dosi ancora senza risposta.
+    const earlier = await db.select({ type: schema.doseEvents.type, at: schema.doseEvents.atMs }).from(schema.doseEvents).where(eq(schema.doseEvents.doseKey, input.doseKey));
+    if (earlier.some((e) => (e.type === 'taken' || e.type === 'not_taken' || e.type === 'undo') && e.at >= when!)) {
+      throw new CommandError('Questa dose ha già una risposta più recente: l’ora non si può cambiare.', 409);
+    }
+  }
+  const at = Math.min(when ?? now, now);
   const res = await recordEvents(db, patientId, [{ id: newId(), type: input.type, doseKey: input.doseKey, at, reason: input.reason ?? null }], actor, now);
   if (!res.accepted.length) throw new CommandError('Dose non trovata', 404);
   await resolveAlertsForResolvedDoses(db, patientId, now);
-  await audit(db, { patientId, actor, action: input.type, entity: 'dose', entityId: input.doseKey, after: { reason: input.reason ?? null } }, now);
+  await audit(db, { patientId, actor, action: input.type, entity: 'dose', entityId: input.doseKey, after: { reason: input.reason ?? null, time: input.time ?? null } }, now);
 }
 
 /** "Me ne occupo io": ferma la catena di escalation per quella dose (docs/04 § 4.4). */

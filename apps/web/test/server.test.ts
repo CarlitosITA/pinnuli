@@ -7,6 +7,9 @@ import { buildPlan, recordEvents, syncDoses } from '../src/server/therapy';
 import { createMemoryNotifier } from '../src/server/telegram';
 import { handleTelegramUpdate } from '../src/server/telegramWebhook';
 import { buildCaregiverState } from '../src/server/caregiverState';
+import { createMemoryPushSender, runPushTick, saveSubscription } from '../src/server/push';
+import { acceptInvite, cancelInvite, createInvite, inviteInfo, listMembers, removeMember } from '../src/server/members';
+import { loadCaller } from '../src/server/auth';
 
 let w: Awaited<ReturnType<typeof seedWorld>>;
 beforeEach(async () => {
@@ -340,5 +343,160 @@ describe('regole nuove a metà giornata', () => {
     expect(today).toEqual(['15:05', '20:00']);
     const tomorrow = await db.select().from(schema.doses).where(and(eq(schema.doses.medicationId, id), eq(schema.doses.day, '2026-11-10')));
     expect(tomorrow).toHaveLength(4);
+  });
+});
+
+describe('avvisi push sul telefono', () => {
+  async function phone(token = 'a') {
+    const p = await startPairing(db, 'phone', MORNING);
+    const id = await claimDevice(db, w.patient.id, 'test', { code: p.code, name: 'Telefono di Mamma', kind: 'phone' }, MORNING);
+    await saveSubscription(db, id, { endpoint: `https://push.example/${token}`, p256dh: 'p', auth: 'a' }, MORNING);
+    return id;
+  }
+  async function lactoTaken() {
+    const lacto = await doseAt(w.patient.id, '08:00', 'Lactoflorene');
+    await recordEvents(db, w.patient.id, [{ id: 'evt-lacto-push1', type: 'taken', doseKey: lacto.key, at: at('08:03') }], 'device:x', at('08:03'));
+  }
+
+  it('manda la prima notifica all\'ora della dose, senza ripeterla nello stesso minuto', async () => {
+    await phone();
+    await lactoTaken();
+    const sender = createMemoryPushSender();
+    expect((await runPushTick(db, at('08:29'), sender)).sent).toBe(0);
+    expect((await runPushTick(db, at('08:30'), sender)).sent).toBe(1);
+    expect((await runPushTick(db, at('08:31'), sender)).sent).toBe(0);
+    expect(sender.sent[0]!.payload.title).toContain('08:30');
+    expect(sender.sent[0]!.payload.body).toContain('Sinemet');
+    expect(sender.sent[0]!.payload.url).toBe('/t');
+  });
+
+  it('insiste più tardi finché la dose non è confermata, poi smette', async () => {
+    await phone();
+    await lactoTaken();
+    const sender = createMemoryPushSender();
+    await runPushTick(db, at('08:30'), sender);
+    expect((await runPushTick(db, at('08:36'), sender)).sent).toBe(1);
+    expect(sender.sent[1]!.payload.title).toContain('ancora da confermare');
+    const d = await doseAt(w.patient.id, '08:30', 'Sinemet');
+    await recordEvents(db, w.patient.id, [{ id: 'evt-sin-push01', type: 'taken', doseKey: d.key, at: at('08:37') }], 'device:x', at('08:37'));
+    expect((await runPushTick(db, at('08:50'), sender)).sent).toBe(0);
+  });
+
+  it('se il worker era fermo recupera con una sola notifica', async () => {
+    await phone();
+    await lactoTaken();
+    const sender = createMemoryPushSender();
+    expect((await runPushTick(db, at('08:50'), sender)).sent).toBe(1);
+  });
+
+  it('un abbonamento scaduto viene tolto, e con la terapia in pausa non parte nulla', async () => {
+    await phone();
+    await lactoTaken();
+    const gone = createMemoryPushSender('gone');
+    const r = await runPushTick(db, at('08:30'), gone);
+    expect(r.removed).toBe(1);
+    expect(await db.select().from(schema.pushSubscriptions)).toHaveLength(0);
+
+    await phone('b');
+    await updatePatient(db, w.patient.id, 'test', { paused: true }, at('08:31'));
+    const sender = createMemoryPushSender();
+    expect((await runPushTick(db, at('08:32'), sender)).sent).toBe(0);
+  });
+
+  it('un telefono scollegato non riceve più avvisi', async () => {
+    const id = await phone();
+    await lactoTaken();
+    await revokeDevice(db, w.patient.id, id, 'test', at('08:10'));
+    const sender = createMemoryPushSender();
+    expect((await runPushTick(db, at('08:30'), sender)).sent).toBe(0);
+  });
+
+  it('con solo telefoni l\'avviso ai familiari dice «dose non confermata», non «tablet spento»', async () => {
+    await phone();
+    await lactoTaken();
+    const notifier = createMemoryNotifier();
+    await db.update(schema.memberships).set({ telegramChatId: '111' }).where(eq(schema.memberships.userId, w.user.id));
+    await runEscalationTick(db, at('08:50'), notifier);
+    const text = notifier.sent.map((m) => m.text).join('\n');
+    expect(text).toContain('Sinemet');
+    expect(text).not.toMatch(/tablet/i);
+  });
+});
+
+describe('familiari invitati', () => {
+  const admin = () => ({ circleId: w.member.circleId, role: 'admin', userId: w.user.id });
+  const token = (url: string) => url.split('/invito/')[1]!;
+
+  it('l\'amministratore crea un invito; la sorella sceglie email e password e finisce in coda alla catena', async () => {
+    const { url } = await createInvite(db, admin(), 'Maria', MORNING);
+    expect(url).toContain('/invito/');
+    expect(await inviteInfo(db, token(url), MORNING)).toMatchObject({ label: 'Maria' });
+    const { userId } = await acceptInvite(db, token(url), { name: 'Maria', email: 'maria@example.com', password: 'una-password-lunga' }, MORNING + 1000);
+    const [m] = await db.select().from(schema.memberships).where(eq(schema.memberships.userId, userId));
+    expect(m).toMatchObject({ role: 'caregiver', chainPosition: 1 });
+    const caller = await loadCaller(userId);
+    expect(caller?.patientId).toBe(w.patient.id);
+    const list = await listMembers(db, w.member.circleId, w.user.id, MORNING + 2000);
+    expect(list.members.map((x) => x.name)).toContain('Maria');
+    expect(list.invites).toHaveLength(0);
+  });
+
+  it('il link vale una sola volta, scade dopo 7 giorni e si può annullare', async () => {
+    const a = await createInvite(db, admin(), 'Maria', MORNING);
+    await acceptInvite(db, token(a.url), { name: 'Maria', email: 'maria@example.com', password: 'una-password-lunga' }, MORNING);
+    await expect(acceptInvite(db, token(a.url), { name: 'X', email: 'x@example.com', password: 'una-password-lunga' }, MORNING)).rejects.toThrow(/non è più valido/);
+
+    const b = await createInvite(db, admin(), 'Zia', MORNING);
+    await expect(acceptInvite(db, token(b.url), { name: 'Zia', email: 'zia@example.com', password: 'una-password-lunga' }, MORNING + 8 * 86400_000)).rejects.toThrow(/non è più valido/);
+
+    const c = await createInvite(db, admin(), 'Cugino', MORNING);
+    const [row] = await db.select().from(schema.invites).where(eq(schema.invites.label, 'Cugino'));
+    await cancelInvite(db, admin(), row!.id);
+    expect(await inviteInfo(db, token(c.url), MORNING)).toBeNull();
+  });
+
+  it('password corta o email già usata sono rifiutate; un familiare semplice non può invitare né togliere', async () => {
+    const { url } = await createInvite(db, admin(), 'Maria', MORNING);
+    await expect(acceptInvite(db, token(url), { name: 'M', email: 'm@example.com', password: 'corta' }, MORNING)).rejects.toThrow(/almeno 8/);
+    await expect(acceptInvite(db, token(url), { name: 'M', email: w.user.email, password: 'una-password-lunga' }, MORNING)).rejects.toThrow(/già un account/);
+
+    const maria = await addCaregiver(w.member.circleId, 'Maria', 1, null);
+    const asMaria = { circleId: w.member.circleId, role: 'caregiver', userId: maria };
+    await expect(createInvite(db, asMaria, 'Altro', MORNING)).rejects.toThrow(/Solo chi ha creato/);
+    await expect(removeMember(db, asMaria, w.user.id)).rejects.toThrow(/Solo chi ha creato/);
+  });
+
+  it('l\'amministratore può togliere un familiare ma non sé stesso', async () => {
+    const maria = await addCaregiver(w.member.circleId, 'Maria', 1, null);
+    await expect(removeMember(db, admin(), w.user.id)).rejects.toThrow(/te stesso/);
+    await removeMember(db, admin(), maria);
+    expect(await loadCaller(maria)).toBeNull();
+  });
+});
+
+describe('dose presa ma non confermata sul dispositivo', () => {
+  const state = async (hhmm: string, now: number) => {
+    const d = await doseAt(w.patient.id, hhmm, 'Sinemet');
+    const view = (await buildCaregiverState(db, w.patient.id, now)).groups.flatMap((g) => g.doses).find((x) => x.key === d.key)!;
+    return { d, view };
+  };
+
+  it('il familiare segna la dose con l\'ora vera: risulta presa in orario, non con ore di ritardo', async () => {
+    const now = at('11:40');
+    const { d } = await state('08:30', now);
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, now);
+    const { view } = await state('08:30', now);
+    expect(view.status).toBe('taken');
+    expect(view.takenAt).toBe(at('08:35'));
+    expect(view.lateMin).toBe(5);
+  });
+
+  it('segnata senza ora vale «adesso»; un\'ora nel futuro o su una dose già risolta è rifiutata', async () => {
+    const now = at('11:40');
+    const { d } = await state('08:30', now);
+    await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '12:00' }, now)).rejects.toThrow(/non è ancora arrivata/);
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken' }, now);
+    expect((await state('08:30', now)).view.takenAt).toBe(now);
+    await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, now + 1000)).rejects.toThrow(/risposta più recente/);
   });
 });

@@ -14,6 +14,11 @@ interface TherapySlice {
     settings: { debounceMs: number; holdToConfirm: boolean; textLevel: 'grande' | 'moltoGrande' | 'enorme' };
   };
 }
+interface MembersState {
+  admin: boolean;
+  members: { userId: string; name: string; email: string; role: string; telegram: boolean; me: boolean }[];
+  invites: { id: string; label: string; expiresAtMs: number }[];
+}
 interface TelegramState {
   configured: boolean;
   linked: boolean;
@@ -31,6 +36,9 @@ export default function MoreView() {
   const therapy = useLive<TherapySlice>('/api/app/therapy');
   const toast = useToast();
   const [tg, setTg] = useState<TelegramState | null>(null);
+  const [people, setPeople] = useState<MembersState | null>(null);
+  const [inviteName, setInviteName] = useState('');
+  const [inviteUrl, setInviteUrl] = useState<{ label: string; url: string } | null>(null);
   const [tgLink, setTgLink] = useState<{ code: string; link: string | null } | null>(null);
   const [code, setCode] = useState('');
   const [devName, setDevName] = useState('');
@@ -40,8 +48,10 @@ export default function MoreView() {
   const [loaded, setLoaded] = useState(false);
 
   const loadTg = () => api<TelegramState>('GET', '/api/app/telegram').then(setTg).catch(() => setTg(null));
+  const loadPeople = () => api<MembersState>('GET', '/api/app/members').then(setPeople).catch(() => setPeople(null));
   useEffect(() => {
     void loadTg();
+    void loadPeople();
   }, []);
 
   const p = therapy.data?.patient;
@@ -75,6 +85,7 @@ export default function MoreView() {
 
       <section className="cg-card" aria-labelledby="h-dev">
         <h2 id="h-dev">Tablet e telefoni</h2>
+        <p className="cg-muted">Il telefono di {p.name} si collega come un tablet: avrà i promemoria con il tasto grande e, se attivi gli avvisi, le notifiche anche a schermo spento.</p>
         {state.data.devices.length === 0 ? <p className="cg-muted">Nessun dispositivo collegato.</p> : null}
         <ul className="cg-list">
           {state.data.devices.map((d) => (
@@ -106,19 +117,114 @@ export default function MoreView() {
               await api('POST', '/api/app/devices', { code: code.trim(), name: devName.trim() || undefined });
               setCode('');
               setDevName('');
-            }, 'Tablet collegato');
+            }, 'Dispositivo collegato');
           }}
         >
-          <Field label="Collega un nuovo tablet" hint="Sul tablet apri pinnuli.it/t: compare un codice di 6 cifre. Scrivilo qui." htmlFor="pair-code">
+          <Field label="Collega un tablet o un telefono" hint="Sul dispositivo apri app.pinnuli.it/t: compare un codice di 6 cifre. Scrivilo qui." htmlFor="pair-code">
             <input id="pair-code" inputMode="numeric" autoComplete="off" placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} required />
           </Field>
           <Field label="Nome (facoltativo)" htmlFor="pair-name">
-            <input id="pair-name" type="text" maxLength={40} placeholder="Tablet del soggiorno" value={devName} onChange={(e) => setDevName(e.target.value)} />
+            <input id="pair-name" type="text" maxLength={40} placeholder="Tablet del soggiorno o Telefono di Mamma" value={devName} onChange={(e) => setDevName(e.target.value)} />
           </Field>
           <button className="cg-btn primary" type="submit" style={{ marginTop: '0.75rem' }}>
             Collega
           </button>
         </form>
+      </section>
+
+      <section className="cg-card" aria-labelledby="h-fam">
+        <h2 id="h-fam">Familiari</h2>
+        <p className="cg-muted">Chi è qui vede le medicine di {p.name} e riceve gli avvisi se una dose non viene confermata, uno dopo l’altro nell’ordine dell’elenco.</p>
+        <ul className="cg-list">
+          {people?.members.map((m) => (
+            <li key={m.userId} className="cg-row">
+              <div>
+                <h3>
+                  {m.name}
+                  {m.me ? ' (tu)' : ''}
+                </h3>
+                <p className="cg-muted">
+                  {m.email} · {m.role === 'admin' ? 'amministratore' : 'familiare'} · Telegram {m.telegram ? 'collegato' : 'non collegato'}
+                </p>
+              </div>
+              {people.admin && !m.me && m.role !== 'admin' ? (
+                <button
+                  className="cg-btn quiet"
+                  onClick={() => {
+                    if (window.confirm(`Togliere ${m.name}? Non vedrà più nulla e non riceverà più avvisi.`)) {
+                      void run(async () => { await api('DELETE', `/api/app/members/${m.userId}`); await loadPeople(); }, 'Familiare tolto');
+                    }
+                  }}
+                >
+                  Togli
+                </button>
+              ) : null}
+            </li>
+          ))}
+          {people?.invites.map((i) => (
+            <li key={i.id} className="cg-row">
+              <div>
+                <h3>{i.label}</h3>
+                <p className="cg-muted">Invito non ancora accettato · scade il {new Date(i.expiresAtMs).toLocaleDateString('it-IT')}</p>
+              </div>
+              {people.admin ? (
+                <button className="cg-btn quiet" onClick={() => void run(async () => { await api('DELETE', `/api/app/invites/${i.id}`); await loadPeople(); }, 'Invito annullato')}>
+                  Annulla
+                </button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+        {people?.admin ? (
+          inviteUrl ? (
+            <div role="status">
+              <p>
+                Manda questo link a <strong>{inviteUrl.label}</strong> (vale 7 giorni e una sola volta). Sceglierà da sé email e password.
+              </p>
+              <input readOnly aria-label="Link d’invito" value={inviteUrl.url} onFocus={(e) => e.currentTarget.select()} />
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                <button
+                  className="cg-btn primary"
+                  onClick={async () => {
+                    try {
+                      if (navigator.share) await navigator.share({ title: 'Pìnnuli', text: `Ti invito a seguire ${p.name} su Pìnnuli`, url: inviteUrl.url });
+                      else {
+                        await navigator.clipboard.writeText(inviteUrl.url);
+                        toast.show('Link copiato');
+                      }
+                    } catch {
+                      /* annullato */
+                    }
+                  }}
+                >
+                  Invia o copia il link
+                </button>
+                <button className="cg-btn quiet" onClick={() => { setInviteUrl(null); void loadPeople(); }}>
+                  Fatto
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void run(async () => {
+                  const r = await api<{ url: string }>('POST', '/api/app/invites', { label: inviteName.trim() });
+                  setInviteUrl({ label: inviteName.trim(), url: r.url });
+                  setInviteName('');
+                  await loadPeople();
+                }, 'Invito pronto');
+              }}
+            >
+              <Field label="Invita un altro familiare" hint="Scrivi il suo nome (per esempio «Maria»): ti darò un link da mandarle." htmlFor="inv-name">
+                <input id="inv-name" type="text" maxLength={40} value={inviteName} onChange={(e) => setInviteName(e.target.value)} required />
+              </Field>
+              <button className="cg-btn primary" type="submit" style={{ marginTop: '0.75rem' }}>
+                Crea l’invito
+              </button>
+            </form>
+          )
+        ) : null}
       </section>
 
       <section className="cg-card" aria-labelledby="h-tg">

@@ -1,5 +1,6 @@
 import { getPool, getDb } from '../src/server/db/client';
 import { runEscalationTick } from '../src/server/escalation';
+import { createWebPushSender, runPushTick } from '../src/server/push';
 import { createTelegramNotifier } from '../src/server/telegram';
 
 /**
@@ -8,6 +9,7 @@ import { createTelegramNotifier } from '../src/server/telegram';
  */
 const INTERVAL_MS = 30_000;
 const notifier = createTelegramNotifier();
+const pusher = createWebPushSender();
 let stopping = false;
 let timer: NodeJS.Timeout | undefined;
 
@@ -17,6 +19,10 @@ async function tick() {
   try {
     const r = await runEscalationTick(getDb(), started, notifier);
     if (r.created || r.resolved) console.log(JSON.stringify({ at: new Date(started).toISOString(), ...r }));
+    if (pusher) {
+      const p = await runPushTick(getDb(), started, pusher);
+      if (p.sent || p.removed) console.log(JSON.stringify({ at: new Date(started).toISOString(), push: p }));
+    }
   } catch (e) {
     console.error('[worker] errore nel controllo', (e as Error).message);
   } finally {
@@ -35,5 +41,5 @@ function stop(signal: string) {
 process.on('SIGTERM', () => stop('SIGTERM'));
 process.on('SIGINT', () => stop('SIGINT'));
 
-console.log('[worker] avviato');
+console.log(`[worker] avviato (notifiche push ${pusher ? 'attive' : 'spente: mancano le chiavi VAPID'})`);
 void tick();

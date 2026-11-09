@@ -18,19 +18,24 @@ import {
 import { PressButton } from '@/components/PressButton';
 import { audioReady, playConfirmSound, playReminderChime, speak, stopSpeaking, unlockAudio } from './audio';
 import { inWords, listLabel } from './format';
-import { DoneScreen, IdleScreen, MissedScreen, PairScreen, PickScreen, ReminderScreen, SimpleChoice, StaleScreen, WakeScreen } from './screens';
+import { DoneScreen, IdleScreen, MissedScreen, NotifyScreen, PairScreen, PickScreen, ReminderScreen, SimpleChoice, StaleScreen, WakeScreen } from './screens';
+import { clearShownNotifications, enableNotifications, isPhoneLike, needsInstall, notifState, type NotifState } from './notify';
 import { useTablet } from './useTablet';
 
 type Ui =
   | { k: 'none' }
   | { k: 'done'; keys: string[]; names: string[]; at: number; until: number; early: boolean }
   | { k: 'pick'; groupId: string }
+  | { k: 'when'; views: DoseView[]; at: string }
   | { k: 'skip1'; keys: string[]; names: string[] }
   | { k: 'skip2'; keys: string[]; names: string[] }
   | { k: 'forgotten'; keys: string[]; names: string[]; mode: 'asap' | 'skip' | 'ask' }
   | { k: 'early'; text: string }
   | { k: 'pin'; digits: string; error: boolean }
   | { k: 'menu'; pin: string; confirmUnpair: boolean };
+
+/** Da quanti minuti di ritardo si chiede «quando l'hai presa?» invece di segnare subito. */
+const LATE_ASK_MIN = 15;
 
 const REASONS = [
   { id: 'unavailable', label: 'Non ce l’ho' },
@@ -43,6 +48,10 @@ export default function TabletApp() {
   const { plan, screen, now, emit } = t;
   const [ui, setUi] = useState<Ui>({ k: 'none' });
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [notif, setNotif] = useState<NotifState>('checking');
+  const [notifBusy, setNotifBusy] = useState(false);
+  const [notifLater, setNotifLater] = useState(true);
+  const [installHint, setInstallHint] = useState(false);
 
   const settings = plan?.patient.settings;
   const touch = useMemo(() => ({ debounceMs: settings?.debounceMs ?? 800, hold: settings?.holdToConfirm ?? false }), [settings?.debounceMs, settings?.holdToConfirm]);
@@ -61,6 +70,24 @@ export default function TabletApp() {
   useEffect(() => {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => undefined);
   }, []);
+
+  // ─── avvisi sul telefono: solo per i telefoni, mai sul tablet a muro ───
+  const paired = t.phase !== 'boot' && t.phase !== 'pair' && !!plan;
+  useEffect(() => {
+    setInstallHint(needsInstall());
+    if (!paired || !isPhoneLike()) return;
+    void notifState().then(setNotif);
+    try {
+      const until = Number(localStorage.getItem('pn_notif_later') ?? 0);
+      setNotifLater(until > Date.now());
+    } catch {
+      setNotifLater(false);
+    }
+  }, [paired]);
+  const reminderOn = screen?.mode === 'reminder';
+  useEffect(() => {
+    if (!reminderOn && paired) void clearShownNotifications();
+  }, [reminderOn, paired]);
 
   // ─── schermo sempre acceso ───
   useEffect(() => {
@@ -121,9 +148,10 @@ export default function TabletApp() {
 
   // ─── azioni ───
   const goDone = useCallback(
-    (views: DoseView[], early: boolean) => {
-      const at = now;
-      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at })));
+    (views: DoseView[], early: boolean, onTime = false) => {
+      // «All'ora giusta»: la dose si segna all'ora prevista, così non risulta in ritardo (e l'annulla, scritto dopo, la copre).
+      const at = onTime ? Math.min(...views.map((v) => v.dose.scheduledAt)) : now;
+      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at: onTime ? v.dose.scheduledAt : at })));
       playConfirmSound();
       stopSpeaking();
       navigator.vibrate?.(40);
@@ -133,7 +161,7 @@ export default function TabletApp() {
         keys: views.map((v) => v.dose.key),
         names: views.map((v) => v.med.name + (v.med.distinguishing ? ` ${v.med.distinguishing.toLowerCase()}` : '')),
         at,
-        until: at + secs * 1000,
+        until: now + secs * 1000, // il conto alla rovescia dell'annulla parte da adesso, anche se la dose è segnata all'ora giusta
         early,
       });
     },
@@ -153,7 +181,7 @@ export default function TabletApp() {
   const longPress = () => setUi({ k: 'pin', digits: '', error: false });
 
   if (t.phase === 'boot') return <main className="pt" aria-busy="true" />;
-  if (t.phase === 'pair' || !plan) return <PairScreen code={t.pair?.code ?? null} offline={t.link === 'offline'} />;
+  if (t.phase === 'pair' || !plan) return <PairScreen code={t.pair?.code ?? null} offline={t.link === 'offline'} install={installHint} />;
   if (t.stale) return <StaleScreen contact={plan.contact} />;
   if (!screen) return <main className="pt" aria-busy="true" />;
 
@@ -268,6 +296,31 @@ export default function TabletApp() {
         onUndo={() => undo(ui.keys)}
         onOk={() => setUi({ k: 'none' })}
         touch={touch}
+      />
+    );
+  }
+
+  if (ui.k === 'when') {
+    const many = ui.views.length > 1;
+    return (
+      <SimpleChoice
+        title="Quando?"
+        now={now}
+        tz={tz}
+        body={`Quando ${many ? 'le' : 'l’'}hai ${many ? 'prese' : 'presa'}?`}
+        actions={
+          <>
+            <PressButton className="pt-ghost is-white" debounceMs={touch.debounceMs} hold={touch.hold} onPress={() => goDone(ui.views, false, true)} data-testid="when-ontime" style={{ minHeight: '9rem', fontSize: '2rem', fontWeight: 700 }}>
+              All’ora giusta, alle {ui.at}
+            </PressButton>
+            <PressButton className="pt-ghost is-white" debounceMs={touch.debounceMs} hold={touch.hold} onPress={() => goDone(ui.views, false)} data-testid="when-now" style={{ minHeight: '9rem', fontSize: '2rem', fontWeight: 700 }}>
+              L’ho {many ? 'prese' : 'presa'} adesso
+            </PressButton>
+            <PressButton className="pt-ghost is-soft" debounceMs={touch.debounceMs} onPress={() => setUi({ k: 'none' })} data-testid="when-back">
+              Torna indietro
+            </PressButton>
+          </>
+        }
       />
     );
   }
@@ -406,7 +459,7 @@ export default function TabletApp() {
         screen={screen}
         now={now}
         touch={touch}
-        onTakeAll={() => goDone(r.pending, false)}
+        onTakeAll={() => (r.minutesLate >= LATE_ASK_MIN ? setUi({ k: 'when', views: r.pending, at: formatLocalTime(r.group.at, tz) }) : goDone(r.pending, false))}
         onSnooze={() => {
           const cfg = reminderConfigFor({ critical: r.group.critical }, plan.patient.settings);
           emit(r.pending.map((p) => ({ type: 'snoozed' as const, doseKey: p.dose.key, at: now, until: now + cfg.snoozeMin * 60_000 })));
@@ -426,12 +479,35 @@ export default function TabletApp() {
         group={g}
         now={now}
         touch={touch}
-        onYes={() => goDone(open, false)}
+        onYes={() => setUi({ k: 'when', views: open, at: formatLocalTime(g.at, tz) })}
         onNo={() => {
           // «No»: si registra come non presa e si mostra l'indicazione scelta dal familiare (docs/03 C8).
           const mode = open.some((d) => d.dose.ifForgotten === 'asap') ? 'asap' : open.every((d) => d.dose.ifForgotten === 'skip') ? 'skip' : 'ask';
           if (mode !== 'asap') emit(open.map((d) => ({ type: 'not_taken' as const, doseKey: d.dose.key, at: now, reason: 'forgot' })));
           setUi({ k: 'forgotten', keys: open.map((d) => d.dose.key), names: open.map((d) => d.med.name), mode });
+        }}
+      />
+    );
+  }
+
+  // Sul telefono, a riposo: una volta sola si propone di attivare gli avvisi (o si spiega come sbloccarli).
+  if ((notif === 'ask' || notif === 'denied' || notif === 'install') && !notifLater) {
+    return (
+      <NotifyScreen
+        state={notif}
+        busy={notifBusy}
+        onEnable={async () => {
+          setNotifBusy(true);
+          setNotif(await enableNotifications());
+          setNotifBusy(false);
+        }}
+        onLater={() => {
+          try {
+            localStorage.setItem('pn_notif_later', String(Date.now() + 86400_000));
+          } catch {
+            /* non importa */
+          }
+          setNotifLater(true);
         }}
       />
     );
