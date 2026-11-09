@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Pìnnuli tablet — medicina in ritardo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#A3182E;color:#FFFFFF;font-family:'Atkinson Hyperlegible',system-ui,'Segoe UI',Arial,sans-serif}
+a{color:#FFFFFF;text-decoration:none}a:hover{color:#FFFFFF}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; background: #A3182E; color: #FFFFFF; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; display: flex; flex-direction: column; gap: 20px; padding: 32px 48px 36px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; height: 64px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#FFFFFF"></circle><path d="M24 12 V27" stroke="#A3182E" stroke-width="6" stroke-linecap="round"></path><circle cx="24" cy="35" r="3.5" fill="#A3182E"></circle></svg>
+      <span style="font-size: 30px; font-weight: 700; letter-spacing: 0.04em">NON ANCORA PRESA</span>
+    </div>
+    <time style="font-size: 44px; font-weight: 700; letter-spacing: -0.02em">12:52</time>
+  </header>
+
+  <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; min-height: 0">
+    <div style="display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; border-radius: 32px; padding: 32px 40px; color: #231F1A; height: 100%; box-sizing: border-box; justify-content: center">
+      <div style="display: flex; align-items: center; gap: 28px">
+        <svg viewBox="0 0 120 120" width="150" height="150" role="img" aria-label="Compressa gialla rotonda"><circle cx="60" cy="60" r="52" fill="#F2D36B" stroke="#B89A2E" stroke-width="4"></circle><path d="M20 60 H100" stroke="#B89A2E" stroke-width="4" stroke-linecap="round"></path></svg>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 76px; font-weight: 700; line-height: 1; letter-spacing: -0.02em">Sinemet</span>
+          <span style="font-size: 34px; font-weight: 700; color: #A3182E">era per le 12:30</span>
+        </div>
+      </div>
+      <p style="margin: 10px 0 0; font-size: 30px; line-height: 1.3">Sono passati <strong>22 minuti</strong>.<br>Se l'hai già presa, tocca il pulsante verde.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px; height: 100%">
+      <a href="Tablet-Presa.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #3E6B2F; border: 6px solid #FFFFFF; border-radius: 32px; color: #FFFFFF; text-decoration: none">
+        <svg viewBox="0 0 48 48" width="96" height="96" aria-hidden="true"><path d="M10 25 L20 35 L38 13" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-size: 56px; font-weight: 700; letter-spacing: 0.02em; line-height: 1">L'HO PRESA</span>
+        <span style="font-size: 24px; opacity: 0.92">adesso o poco fa</span>
+      </a>
+      <a href="Tablet-Giorno.dc.html" style="height: 112px; display: flex; align-items: center; justify-content: center; gap: 16px; background: #A3182E; border: 3px solid #FFFFFF; border-radius: 24px; color: #FFFFFF; font-size: 28px; font-weight: 700; text-decoration: none">
+        <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true"><path d="M14 8 h8 l3 8 -4 3 a16 16 0 0 0 8 8 l3 -4 8 3 v8 a4 4 0 0 1 -4 4 A30 30 0 0 1 10 12 a4 4 0 0 1 4 -4z" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="round"></path></svg>
+        Chiama Giovanni
+      </a>
+    </div>
+  </div>
+
+  <footer style="display: flex; align-items: center; justify-content: space-between; height: 40px; font-size: 22px; opacity: 0.94">
+    <span>Giovanni è stato avvisato alle 12:45.</span>
+    <span>Non prenderne due insieme: la prossima dose è alle 16:30.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

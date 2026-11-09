@@ -1,0 +1,37 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-09T12:14:00Z"},
+  "title": "Pinnuli — Brand e mockup",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 830, "title": "Identità: logo e marchio"},
+    "Palette.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 860, "title": "Palette, tipografia, stati"},
+    "Tablet-Giorno.dc.html": {"x": 0, "y": 1200, "w": 1280, "h": 800, "title": "Tablet · Home di giorno", "is_interactive": true, "radius": 24},
+    "Tablet-Promemoria.dc.html": {"x": 1360, "y": 1200, "w": 1280, "h": 800, "title": "Tablet · Promemoria a tutto schermo", "is_interactive": true, "radius": 24},
+    "Tablet-Presa.dc.html": {"x": 2720, "y": 1200, "w": 1280, "h": 800, "title": "Tablet · Conferma con Annulla", "is_interactive": true, "radius": 24},
+    "Tablet-Ritardo.dc.html": {"x": 4080, "y": 1200, "w": 1280, "h": 800, "title": "Tablet · Dose in ritardo", "is_interactive": true, "radius": 24},
+    "Tablet-Notte.dc.html": {"x": 5440, "y": 1200, "w": 1280, "h": 800, "title": "Tablet · Modalità notte", "is_interactive": true, "radius": 24},
+    "Phone-Oggi.dc.html": {"x": 0, "y": 2340, "w": 390, "h": 844, "title": "Caregiver · Oggi", "is_interactive": true, "radius": 40},
+    "Phone-Terapia.dc.html": {"x": 470, "y": 2340, "w": 390, "h": 844, "title": "Caregiver · Terapia", "is_interactive": true, "radius": 40},
+    "Phone-Farmaco.dc.html": {"x": 940, "y": 2340, "w": 390, "h": 844, "title": "Caregiver · Modifica farmaco", "is_interactive": true, "radius": 40},
+    "Phone-Avviso.dc.html": {"x": 1410, "y": 2340, "w": 390, "h": 844, "title": "Caregiver · Avviso di ritardo", "is_interactive": true, "radius": 40},
+    "Phone-Paziente.dc.html": {"x": 2000, "y": 2340, "w": 390, "h": 844, "title": "Paziente · Oggi (telefono)", "is_interactive": true, "radius": 40},
+    "Phone-Paziente-Promemoria.dc.html": {"x": 2470, "y": 2340, "w": 390, "h": 844, "title": "Paziente · Promemoria (telefono)", "is_interactive": true, "radius": 40}
+  },
+  "order": [
+    "Main.dc.html", "Palette.dc.html",
+    "Tablet-Giorno.dc.html", "Tablet-Promemoria.dc.html", "Tablet-Presa.dc.html", "Tablet-Ritardo.dc.html", "Tablet-Notte.dc.html",
+    "Phone-Oggi.dc.html", "Phone-Terapia.dc.html", "Phone-Farmaco.dc.html", "Phone-Avviso.dc.html",
+    "Phone-Paziente.dc.html", "Phone-Paziente-Promemoria.dc.html"
+  ],
+  "notes": {
+    "t-brand": {"x": 0, "y": -300, "text": "1 · Identità di marca", "kind": "title1", "maxW": 2640},
+    "t-tablet": {"x": 0, "y": 920, "text": "2 · Tablet a muro (1280×800) — flusso: Home → Promemoria → Conferma", "kind": "title1", "maxW": 6720},
+    "t-phone": {"x": 0, "y": 2080, "text": "3 · Telefono del caregiver (Giovanni)", "kind": "title1", "maxW": 1800},
+    "t-patient": {"x": 2000, "y": 2080, "text": "4 · Telefono della paziente", "kind": "title1", "maxW": 860},
+    "s-flow": {"x": 6840, "y": 1200, "w": 420, "text": "Prototipo: nelle tavole tablet i pulsanti sono collegati. Premi Play e tocca «L'HO PRESA» per vedere la conferma con i 10 secondi di Annulla.", "fill": "orange"},
+    "s-a11y": {"x": 2960, "y": 0, "w": 420, "text": "Regole d'oro accessibilità: solo tocchi singoli (niente scorrimenti, pressioni lunghe o doppi tocchi) · bersagli ≥ 88 px, azione primaria ≥ 160 px · 24 px di distanza tra bersagli · testo ≥ 24 px sul tablet · contrasto ≥ 4.5:1 ovunque, ≥ 7:1 per le informazioni chiave · ogni stato ha icona + parola + colore · Annulla per 10 s al posto delle finestre di conferma.", "fill": "green"}
+  },
+  "designSystems": []
+}
