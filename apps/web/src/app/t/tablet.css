@@ -1024,3 +1024,14 @@ body {
     font-size: 2.25rem;
   }
 }
+
+/* Passi per aggiungere Pìnnuli alla schermata Home dell'iPhone */
+.pt-steps {
+  text-align: left;
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 2rem;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  max-width: 48rem;
+}

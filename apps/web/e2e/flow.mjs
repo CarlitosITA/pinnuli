@@ -83,7 +83,32 @@ try {
   await cg.waitForSelector('[data-testid="dose"][data-status="taken"]', { timeout: 15_000 });
   console.log('  ✓ il familiare vede "Presa"');
 
-  // 6. Controllo di accessibilità sulle pagine del familiare.
+  // 6. Un secondo familiare (la sorella) viene invitato con un link e sceglie da sé email e password.
+  await cg.goto(`${BASE}/app/altro`);
+  await cg.fill('#inv-name', 'Maria');
+  await cg.click('form:has(#inv-name) button[type=submit]');
+  await cg.waitForSelector('input[aria-label="Link d’invito"]');
+  const inviteUrl = await cg.inputValue('input[aria-label="Link d’invito"]');
+  assert.match(inviteUrl, /\/invito\//);
+  await axeViolations(cg, '/app/altro con invito');
+  const sister = await browser.newContext({ ...opts, viewport: { width: 390, height: 844 } });
+  const sp = await sister.newPage();
+  await sp.goto(inviteUrl.replace(/^https?:\/\/[^/]+/, BASE));
+  await sp.waitForSelector('#email');
+  await axeViolations(sp, '/invito');
+  await sp.fill('#email', 'maria@example.com');
+  await sp.fill('#password', 'una-password-lunga');
+  await sp.click('button[type=submit]');
+  await sp.waitForURL('**/app');
+  await sp.goto(`${BASE}/app/altro`);
+  await sp.waitForSelector('text=Maria (tu)');
+  assert.equal(await sp.locator('#inv-name').count(), 0, 'chi non è amministratore non può invitare');
+  const again = await sister.newPage();
+  await again.goto(inviteUrl.replace(/^https?:\/\/[^/]+/, BASE));
+  assert.match(await again.innerText('body'), /non è più valido/);
+  console.log('  ✓ invito e secondo familiare');
+
+  // 7. Controllo di accessibilità sulle pagine del familiare.
   for (const path of ['/app', '/app/terapia', '/app/storico', '/app/altro']) {
     await cg.goto(`${BASE}${path}`);
     await cg.waitForSelector('main h1');

@@ -126,7 +126,10 @@ export async function runEscalationTick(db: Db, now: number, notifier: Notifier)
     const devs = await db.select().from(devices).where(and(eq(devices.patientId, patient.id), eq(devices.status, 'active')));
     const tablets = devs.filter((d) => d.kind === 'tablet');
     const lastSeen = Math.max(0, ...tablets.map((d) => d.lastSeenMs ?? 0)) || null;
-    const health: DeviceHealth = tablets.length ? deviceHealth(lastSeen, now) : 'never';
+    // Con solo un telefono (niente tablet) la pagina non resta aperta: lo stato "offline" non vuol dire nulla,
+    // quindi gli avvisi parlano di dose non confermata e non di tablet spento.
+    const phonesOnly = !tablets.length && devs.some((d) => d.kind === 'phone');
+    const health: DeviceHealth = tablets.length ? deviceHealth(lastSeen, now) : phonesOnly ? 'online' : 'never';
 
     // ── Dosi senza risposta ──
     const day = patientDay(now, patient.tz);

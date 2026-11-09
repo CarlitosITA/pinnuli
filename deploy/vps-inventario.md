@@ -37,7 +37,8 @@ Per ripetere il controllo:
 6. Aggiungere **un solo file** `~/caddy-extra/pinnuli.caddy` (da `deploy/pinnuli.caddy`), `caddy validate`, poi `caddy reload` a caldo sul Caddy di Votia (stesso schema di civitask e strato). Se il proxy fosse un altro, `deploy/nginx-app.pinnuli.it.conf` è l'equivalente per nginx.
 7. Certificato TLS: lo ottiene Caddy da solo, ma il DNS di `app.pinnuli.it` deve già puntare a 51.254.222.11.
 8. Pianificare `deploy/backup.sh` e provare un ripristino.
-9. Telegram (facoltativo): impostare il token e registrare il webhook `https://app.pinnuli.it/api/telegram/webhook` con il segreto scelto.
+9. Notifiche sul telefono: generare le chiavi VAPID (`npx web-push generate-vapid-keys`, anche da un altro computer), metterle in `.env` (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`) e `docker compose up -d`. Il worker scrive nel log se le notifiche sono attive. Se si cambiano le chiavi, i telefoni devono riattivare gli avvisi.
+10. Telegram (facoltativo): impostare il token e registrare il webhook `https://app.pinnuli.it/api/telegram/webhook` con il segreto scelto.
 
 ## 3. Cosa non si fa
 

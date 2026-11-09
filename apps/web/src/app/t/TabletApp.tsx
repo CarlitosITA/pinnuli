@@ -18,7 +18,8 @@ import {
 import { PressButton } from '@/components/PressButton';
 import { audioReady, playConfirmSound, playReminderChime, speak, stopSpeaking, unlockAudio } from './audio';
 import { inWords, listLabel } from './format';
-import { DoneScreen, IdleScreen, MissedScreen, PairScreen, PickScreen, ReminderScreen, SimpleChoice, StaleScreen, WakeScreen } from './screens';
+import { DoneScreen, IdleScreen, MissedScreen, NotifyScreen, PairScreen, PickScreen, ReminderScreen, SimpleChoice, StaleScreen, WakeScreen } from './screens';
+import { clearShownNotifications, enableNotifications, isPhoneLike, needsInstall, notifState, type NotifState } from './notify';
 import { useTablet } from './useTablet';
 
 type Ui =
@@ -43,6 +44,10 @@ export default function TabletApp() {
   const { plan, screen, now, emit } = t;
   const [ui, setUi] = useState<Ui>({ k: 'none' });
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [notif, setNotif] = useState<NotifState>('checking');
+  const [notifBusy, setNotifBusy] = useState(false);
+  const [notifLater, setNotifLater] = useState(true);
+  const [installHint, setInstallHint] = useState(false);
 
   const settings = plan?.patient.settings;
   const touch = useMemo(() => ({ debounceMs: settings?.debounceMs ?? 800, hold: settings?.holdToConfirm ?? false }), [settings?.debounceMs, settings?.holdToConfirm]);
@@ -61,6 +66,24 @@ export default function TabletApp() {
   useEffect(() => {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => undefined);
   }, []);
+
+  // ─── avvisi sul telefono: solo per i telefoni, mai sul tablet a muro ───
+  const paired = t.phase !== 'boot' && t.phase !== 'pair' && !!plan;
+  useEffect(() => {
+    setInstallHint(needsInstall());
+    if (!paired || !isPhoneLike()) return;
+    void notifState().then(setNotif);
+    try {
+      const until = Number(localStorage.getItem('pn_notif_later') ?? 0);
+      setNotifLater(until > Date.now());
+    } catch {
+      setNotifLater(false);
+    }
+  }, [paired]);
+  const reminderOn = screen?.mode === 'reminder';
+  useEffect(() => {
+    if (!reminderOn && paired) void clearShownNotifications();
+  }, [reminderOn, paired]);
 
   // ─── schermo sempre acceso ───
   useEffect(() => {
@@ -153,7 +176,7 @@ export default function TabletApp() {
   const longPress = () => setUi({ k: 'pin', digits: '', error: false });
 
   if (t.phase === 'boot') return <main className="pt" aria-busy="true" />;
-  if (t.phase === 'pair' || !plan) return <PairScreen code={t.pair?.code ?? null} offline={t.link === 'offline'} />;
+  if (t.phase === 'pair' || !plan) return <PairScreen code={t.pair?.code ?? null} offline={t.link === 'offline'} install={installHint} />;
   if (t.stale) return <StaleScreen contact={plan.contact} />;
   if (!screen) return <main className="pt" aria-busy="true" />;
 
@@ -432,6 +455,29 @@ export default function TabletApp() {
           const mode = open.some((d) => d.dose.ifForgotten === 'asap') ? 'asap' : open.every((d) => d.dose.ifForgotten === 'skip') ? 'skip' : 'ask';
           if (mode !== 'asap') emit(open.map((d) => ({ type: 'not_taken' as const, doseKey: d.dose.key, at: now, reason: 'forgot' })));
           setUi({ k: 'forgotten', keys: open.map((d) => d.dose.key), names: open.map((d) => d.med.name), mode });
+        }}
+      />
+    );
+  }
+
+  // Sul telefono, a riposo: una volta sola si propone di attivare gli avvisi (o si spiega come sbloccarli).
+  if ((notif === 'ask' || notif === 'denied' || notif === 'install') && !notifLater) {
+    return (
+      <NotifyScreen
+        state={notif}
+        busy={notifBusy}
+        onEnable={async () => {
+          setNotifBusy(true);
+          setNotif(await enableNotifications());
+          setNotifBusy(false);
+        }}
+        onLater={() => {
+          try {
+            localStorage.setItem('pn_notif_later', String(Date.now() + 86400_000));
+          } catch {
+            /* non importa */
+          }
+          setNotifLater(true);
         }}
       />
     );

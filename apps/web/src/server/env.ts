@@ -23,4 +23,14 @@ export const env = {
   get telegramBot() {
     return process.env.TELEGRAM_BOT_USERNAME || '';
   },
+  /** Chiavi VAPID per le notifiche push: senza, le notifiche restano spente. */
+  get vapidPublic() {
+    return process.env.VAPID_PUBLIC_KEY || '';
+  },
+  get vapidPrivate() {
+    return process.env.VAPID_PRIVATE_KEY || '';
+  },
+  get vapidSubject() {
+    return process.env.VAPID_SUBJECT || this.appUrl;
+  },
 };

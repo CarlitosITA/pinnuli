@@ -1,5 +1,6 @@
 'use client';
 
+import { isPhoneLike } from './notify';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   pickScreen,
@@ -142,7 +143,7 @@ export function useTablet() {
     let p = loadPair();
     if (!p || p.expiresMs < Date.now() + 60_000) {
       try {
-        const res = await fetch('/api/device/pair-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const res = await fetch('/api/device/pair-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: isPhoneLike() ? 'phone' : 'tablet' }) });
         if (!res.ok) throw new Error('pair-start');
         p = (await res.json()) as PairState;
         savePair(p);

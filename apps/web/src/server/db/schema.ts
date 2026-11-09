@@ -55,6 +55,23 @@ export const memberships = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.circleId] })],
 );
 
+/** Invito per un nuovo familiare: si consegna un link da usare una volta sola (se ne conserva solo l'impronta). */
+export const invites = pgTable(
+  'invites',
+  {
+    id: text('id').primaryKey(),
+    circleId: text('circle_id').notNull().references(() => circles.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    /** Come lo chiama chi invita, per riconoscerlo nell'elenco (es. «Maria»). */
+    label: text('label').notNull(),
+    createdBy: text('created_by').notNull(),
+    createdAtMs: ms('created_at_ms').notNull(),
+    expiresAtMs: ms('expires_at_ms').notNull(),
+    usedAtMs: ms('used_at_ms'),
+  },
+  (t) => [uniqueIndex('invites_token_idx').on(t.tokenHash)],
+);
+
 export const patients = pgTable('patients', {
   id: text('id').primaryKey(),
   circleId: text('circle_id').notNull().references(() => circles.id, { onDelete: 'cascade' }),
@@ -252,3 +269,31 @@ export const auditLog = pgTable('audit_log', {
   before: jsonb('before'),
   after: jsonb('after'),
 });
+
+/** Iscrizione alle notifiche push di un dispositivo (telefono o tablet). Un dispositivo può rinnovarla. */
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: text('id').primaryKey(),
+    deviceId: text('device_id').notNull().references(() => devices.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    createdAtMs: ms('created_at_ms').notNull(),
+    lastOkMs: ms('last_ok_ms'),
+    failures: integer('failures').notNull().default(0),
+  },
+  (t) => [uniqueIndex('push_subscriptions_endpoint_idx').on(t.endpoint), index('push_subscriptions_device_idx').on(t.deviceId)],
+);
+
+/** Quante notifiche sono già partite per ogni promemoria e a chi: evita doppioni e fissa le ripetizioni. */
+export const pushLog = pgTable(
+  'push_log',
+  {
+    subscriptionId: text('subscription_id').notNull().references(() => pushSubscriptions.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    count: integer('count').notNull().default(0),
+    lastSentMs: ms('last_sent_ms').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.subscriptionId, t.groupId] })],
+);

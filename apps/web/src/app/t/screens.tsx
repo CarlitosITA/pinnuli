@@ -569,9 +569,71 @@ export function SimpleChoice({
   );
 }
 
+/* ───────── Avvisi sul telefono ───────── */
+
+export function NotifyScreen({
+  state,
+  busy,
+  onEnable,
+  onLater,
+}: {
+  state: 'ask' | 'denied' | 'install';
+  busy: boolean;
+  onEnable: () => void;
+  onLater: () => void;
+}) {
+  return (
+    <main className="pt pt--reminder" data-screen="notify">
+      <div className="pt-center" style={{ gap: '1.25rem' }}>
+        <Bell size="5rem" />
+        {state === 'ask' ? (
+          <>
+            <h1 style={{ fontSize: '2.25rem' }}>Ti avviso io quando è ora</h1>
+            <p>Attiva gli avvisi: il telefono suona all’ora della medicina, anche con lo schermo spento.</p>
+          </>
+        ) : state === 'install' ? (
+          <>
+            <h1 style={{ fontSize: '2.25rem' }}>Per ricevere gli avvisi</h1>
+            <p style={{ fontSize: '1.25rem' }}>Su iPhone serve mettere Pìnnuli sulla schermata Home. Dopo, collega di nuovo il telefono con un nuovo codice.</p>
+            <InstallSteps />
+          </>
+        ) : (
+          <>
+            <h1 style={{ fontSize: '2.25rem' }}>Gli avvisi sono bloccati</h1>
+            <p>
+              Per sbloccarli: tocca il lucchetto accanto all’indirizzo della pagina, poi «Autorizzazioni» → «Notifiche» → «Consenti». Poi ricarica la pagina.
+            </p>
+          </>
+        )}
+      </div>
+      <div style={{ display: 'grid', gap: '1rem' }}>
+        {state === 'ask' ? (
+          <PressButton className="pt-ghost is-white" debounceMs={600} onPress={onEnable} disabled={busy} style={{ fontSize: '2.25rem' }} data-testid="notify-enable">
+            {busy ? 'Un momento…' : 'Attiva gli avvisi'}
+          </PressButton>
+        ) : null}
+        <PressButton className="pt-ghost is-soft" debounceMs={600} onPress={onLater} data-testid="notify-later">
+          Più tardi
+        </PressButton>
+      </div>
+    </main>
+  );
+}
+
+/** iPhone: i passi per mettere Pìnnuli sulla schermata Home (serve per le notifiche). */
+export function InstallSteps() {
+  return (
+    <ol className="pt-steps" data-testid="install-steps">
+      <li>In Safari tocca il tasto <strong>Condividi</strong> (il quadrato con la freccia in su).</li>
+      <li>Scegli <strong>«Aggiungi alla schermata Home»</strong>, poi «Aggiungi».</li>
+      <li>Chiudi Safari e apri <strong>Pìnnuli</strong> dalla schermata Home. Il collegamento si fa da lì.</li>
+    </ol>
+  );
+}
+
 /* ───────── Collegamento — P1 ───────── */
 
-export function PairScreen({ code, offline }: { code: string | null; offline: boolean }) {
+export function PairScreen({ code, offline, install = false }: { code: string | null; offline: boolean; install?: boolean }) {
   const spaced = code ? `${code.slice(0, 3)} ${code.slice(3)}` : '… … …';
   return (
     <main className="pt" data-screen="pair">
@@ -582,13 +644,21 @@ export function PairScreen({ code, offline }: { code: string | null; offline: bo
         </div>
       </header>
       <div className="pt-center">
-        <p className="sub" style={{ fontSize: '2rem' }}>
-          Questo tablet non è ancora collegato.
+        {install ? (
+          <>
+            <p className="sub" style={{ fontSize: '1.75rem' }}>
+              Prima di collegare questo iPhone
+            </p>
+            <InstallSteps />
+          </>
+        ) : null}
+        <p className="sub" style={{ fontSize: install ? '1.25rem' : '2rem' }}>
+          Questo {install ? 'telefono' : 'dispositivo'} non è ancora collegato.
         </p>
         <div className="pt-code" data-testid="pair-code" aria-label={`Codice ${code?.split('').join(' ') ?? ''}`}>
           {spaced}
         </div>
-        <p>Chiedi a un familiare di inserire questo codice nell’app Pìnnuli, alla voce «Altro» → «Collega un tablet».</p>
+        <p>Chiedi a un familiare di inserire questo codice nell’app Pìnnuli, alla voce «Altro» → «Collega un tablet o un telefono».</p>
         {offline ? <p className="sub warn">Non riesco a collegarmi a internet.</p> : null}
       </div>
     </main>
