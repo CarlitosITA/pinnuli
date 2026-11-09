@@ -21,11 +21,11 @@ export default function TodayView() {
   const toast = useToast();
   const [busy, setBusy] = useState<string | null>(null);
 
-  async function act(key: string, type: 'taken' | 'not_taken' | 'undo') {
+  async function act(key: string, type: 'taken' | 'not_taken' | 'undo', time?: string) {
     setBusy(key + type);
     try {
-      await api('POST', `/api/app/doses/${encodeURIComponent(key)}`, { type });
-      toast.show(type === 'taken' ? 'Segnata come presa' : type === 'undo' ? 'Annullato' : 'Segnata come non presa');
+      await api('POST', `/api/app/doses/${encodeURIComponent(key)}`, { type, time });
+      toast.show(type === 'taken' ? (time ? `Segnata come presa alle ${time}` : 'Segnata come presa') : type === 'undo' ? 'Annullato' : 'Segnata come non presa');
       await reload();
     } catch (e) {
       toast.show((e as Error).message);
@@ -143,7 +143,9 @@ export default function TodayView() {
   );
 }
 
-function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key: string, t: 'taken' | 'not_taken' | 'undo') => void }) {
+function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key: string, t: 'taken' | 'not_taken' | 'undo', time?: string) => void | Promise<void> }) {
+  const [timeOpen, setTimeOpen] = useState(false);
+  const [timeVal, setTimeVal] = useState('');
   const st = STATUS[d.status] ?? STATUS.scheduled!;
   const q = quantityWords(d.quantity, d.medication.form as MedicationForm).text;
   return (
@@ -179,9 +181,27 @@ function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key
             </button>
           ) : (
             <>
-              <button className="cg-btn ok" disabled={busy === d.key + 'taken'} onClick={() => act(d.key, 'taken')}>
-                Segna come presa
-              </button>
+              {d.status !== 'scheduled' ? (
+                <button className="cg-btn ok" disabled={busy === d.key + 'taken'} onClick={() => act(d.key, 'taken', d.localTime)} data-testid="taken-on-time">
+                  Presa alle {d.localTime}
+                </button>
+              ) : (
+                <button className="cg-btn ok" disabled={busy === d.key + 'taken'} onClick={() => act(d.key, 'taken')}>
+                  Segna come presa
+                </button>
+              )}
+              {d.status !== 'scheduled' ? (
+                <button
+                  className="cg-btn"
+                  aria-expanded={timeOpen}
+                  onClick={() => {
+                    setTimeOpen(!timeOpen);
+                    setTimeVal(timeOf(Date.now()));
+                  }}
+                >
+                  Presa a un’altra ora
+                </button>
+              ) : null}
               {d.status !== 'scheduled' ? (
                 <button className="cg-btn quiet" disabled={busy === d.key + 'not_taken'} onClick={() => act(d.key, 'not_taken')}>
                   Non presa
@@ -190,6 +210,21 @@ function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key
             </>
           )}
         </div>
+        {timeOpen && d.status !== 'taken' && d.status !== 'not_taken' ? (
+          <form
+            className="cg-actions"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void act(d.key, 'taken', timeVal);
+            }}
+          >
+            <label htmlFor={`t-${d.key}`}>A che ora l’ha presa?</label>
+            <input id={`t-${d.key}`} type="time" value={timeVal} onChange={(e) => setTimeVal(e.target.value)} required />
+            <button className="cg-btn ok" type="submit">
+              Conferma l’ora
+            </button>
+          </form>
+        ) : null}
       </div>
     </article>
   );

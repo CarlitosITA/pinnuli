@@ -473,3 +473,30 @@ describe('familiari invitati', () => {
     expect(await loadCaller(maria)).toBeNull();
   });
 });
+
+describe('dose presa ma non confermata sul dispositivo', () => {
+  const state = async (hhmm: string, now: number) => {
+    const d = await doseAt(w.patient.id, hhmm, 'Sinemet');
+    const view = (await buildCaregiverState(db, w.patient.id, now)).groups.flatMap((g) => g.doses).find((x) => x.key === d.key)!;
+    return { d, view };
+  };
+
+  it('il familiare segna la dose con l\'ora vera: risulta presa in orario, non con ore di ritardo', async () => {
+    const now = at('11:40');
+    const { d } = await state('08:30', now);
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, now);
+    const { view } = await state('08:30', now);
+    expect(view.status).toBe('taken');
+    expect(view.takenAt).toBe(at('08:35'));
+    expect(view.lateMin).toBe(5);
+  });
+
+  it('segnata senza ora vale «adesso»; un\'ora nel futuro o su una dose già risolta è rifiutata', async () => {
+    const now = at('11:40');
+    const { d } = await state('08:30', now);
+    await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '12:00' }, now)).rejects.toThrow(/non è ancora arrivata/);
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken' }, now);
+    expect((await state('08:30', now)).view.takenAt).toBe(now);
+    await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, now + 1000)).rejects.toThrow(/risposta più recente/);
+  });
+});
