@@ -8,6 +8,7 @@
     "start": "next start -p ${PORT:-3000}",
     "worker": "tsx worker/index.ts",
     "test": "vitest run",
+    "e2e": "node e2e/flow.mjs",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/server/db/migrate.ts",
@@ -25,14 +26,14 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.0",
-    "@playwright/test": "^1.50.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/web-push": "^3.6.4",
+    "axe-core": "^4.14.0",
     "drizzle-kit": "^0.31.0",
+    "playwright": "^1.65.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",
     "vitest": "^3.0.0"

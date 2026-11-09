@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: pinnuli
+          POSTGRES_PASSWORD: pinnuli
+          POSTGRES_DB: pinnuli_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pinnuli" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://pinnuli:pinnuli@localhost:5432/pinnuli_test
+      TEST_DATABASE_URL: postgres://pinnuli:pinnuli@localhost:5432/pinnuli_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+        env:
+          SESSION_SECRET: solo-per-la-compilazione-solo-per-la-compilazione
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: test
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: pinnuli
+          POSTGRES_PASSWORD: pinnuli
+          POSTGRES_DB: pinnuli_e2e
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pinnuli" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://pinnuli:pinnuli@localhost:5432/pinnuli_e2e
+      SESSION_SECRET: prova-end-to-end-prova-end-to-end-prova
+      ADMIN_EMAIL: giovanni@example.com
+      ADMIN_PASSWORD: password-di-prova
+      APP_URL: http://localhost:3000
+      SEED_THERAPY: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run db:migrate
+      - run: npm run db:seed
+      - run: npm run build
+      - run: npm run start &
+      - run: npx wait-on http-get://localhost:3000/api/health --timeout 60000
+      - run: npm run e2e -w @pinnuli/web
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f deploy/Dockerfile --target web -t pinnuli-web:ci .
+      - run: docker build -f deploy/Dockerfile --target worker -t pinnuli-worker:ci .

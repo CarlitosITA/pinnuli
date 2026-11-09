@@ -18,7 +18,9 @@ export function Pill({
   label?: string;
 }) {
   const stroke = shade(color);
-  const common = { viewBox: '0 0 120 120', width: size, height: size, role: 'img' as const, 'aria-label': label ?? `Disegno: ${form}` };
+  const common = label
+    ? { viewBox: '0 0 120 120', width: size, height: size, role: 'img' as const, 'aria-label': label }
+    : { viewBox: '0 0 120 120', width: size, height: size, 'aria-hidden': true as const };
   switch (form) {
     case 'capsula':
       return (

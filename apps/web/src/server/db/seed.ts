@@ -84,10 +84,11 @@ export async function seed(db: Db = getDb(), now = Date.now()) {
     settings: DEFAULT_SETTINGS,
   });
   const today = patientDay(now, 'Europe/Rome');
-  await seedTherapy(db, patientId, today);
+  // SEED_THERAPY=0 crea solo utente e paziente, senza la terapia di esempio (usato dai test end-to-end).
+  if (process.env.SEED_THERAPY !== '0') await seedTherapy(db, patientId, today);
   await syncDoses(db, patientId, now);
   await audit(db, { patientId, actor: 'system', action: 'seed', entity: 'patient', entityId: patientId });
-  console.log(`Creati: familiare ${email}, paziente "${name}", terapia di partenza con 14 dosi al giorno.`);
+  console.log(`Creati: familiare ${email}, paziente "${name}", ${process.env.SEED_THERAPY === '0' ? "nessuna terapia" : "terapia di partenza"}.`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
