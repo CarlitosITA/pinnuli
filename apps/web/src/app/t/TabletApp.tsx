@@ -26,12 +26,16 @@ type Ui =
   | { k: 'none' }
   | { k: 'done'; keys: string[]; names: string[]; at: number; until: number; early: boolean }
   | { k: 'pick'; groupId: string }
+  | { k: 'when'; views: DoseView[]; at: string }
   | { k: 'skip1'; keys: string[]; names: string[] }
   | { k: 'skip2'; keys: string[]; names: string[] }
   | { k: 'forgotten'; keys: string[]; names: string[]; mode: 'asap' | 'skip' | 'ask' }
   | { k: 'early'; text: string }
   | { k: 'pin'; digits: string; error: boolean }
   | { k: 'menu'; pin: string; confirmUnpair: boolean };
+
+/** Da quanti minuti di ritardo si chiede «quando l'hai presa?» invece di segnare subito. */
+const LATE_ASK_MIN = 15;
 
 const REASONS = [
   { id: 'unavailable', label: 'Non ce l’ho' },
@@ -144,9 +148,10 @@ export default function TabletApp() {
 
   // ─── azioni ───
   const goDone = useCallback(
-    (views: DoseView[], early: boolean) => {
-      const at = now;
-      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at })));
+    (views: DoseView[], early: boolean, onTime = false) => {
+      // «All'ora giusta»: la dose si segna all'ora prevista, così non risulta in ritardo (e l'annulla, scritto dopo, la copre).
+      const at = onTime ? Math.min(...views.map((v) => v.dose.scheduledAt)) : now;
+      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at: onTime ? v.dose.scheduledAt : at })));
       playConfirmSound();
       stopSpeaking();
       navigator.vibrate?.(40);
@@ -156,7 +161,7 @@ export default function TabletApp() {
         keys: views.map((v) => v.dose.key),
         names: views.map((v) => v.med.name + (v.med.distinguishing ? ` ${v.med.distinguishing.toLowerCase()}` : '')),
         at,
-        until: at + secs * 1000,
+        until: now + secs * 1000, // il conto alla rovescia dell'annulla parte da adesso, anche se la dose è segnata all'ora giusta
         early,
       });
     },
@@ -295,6 +300,31 @@ export default function TabletApp() {
     );
   }
 
+  if (ui.k === 'when') {
+    const many = ui.views.length > 1;
+    return (
+      <SimpleChoice
+        title="Quando?"
+        now={now}
+        tz={tz}
+        body={`Quando ${many ? 'le' : 'l’'}hai ${many ? 'prese' : 'presa'}?`}
+        actions={
+          <>
+            <PressButton className="pt-ghost is-white" debounceMs={touch.debounceMs} hold={touch.hold} onPress={() => goDone(ui.views, false, true)} data-testid="when-ontime" style={{ minHeight: '9rem', fontSize: '2rem', fontWeight: 700 }}>
+              All’ora giusta, alle {ui.at}
+            </PressButton>
+            <PressButton className="pt-ghost is-white" debounceMs={touch.debounceMs} hold={touch.hold} onPress={() => goDone(ui.views, false)} data-testid="when-now" style={{ minHeight: '9rem', fontSize: '2rem', fontWeight: 700 }}>
+              L’ho {many ? 'prese' : 'presa'} adesso
+            </PressButton>
+            <PressButton className="pt-ghost is-soft" debounceMs={touch.debounceMs} onPress={() => setUi({ k: 'none' })} data-testid="when-back">
+              Torna indietro
+            </PressButton>
+          </>
+        }
+      />
+    );
+  }
+
   if (ui.k === 'pick' && screen.reminder) {
     return (
       <PickScreen
@@ -429,7 +459,7 @@ export default function TabletApp() {
         screen={screen}
         now={now}
         touch={touch}
-        onTakeAll={() => goDone(r.pending, false)}
+        onTakeAll={() => (r.minutesLate >= LATE_ASK_MIN ? setUi({ k: 'when', views: r.pending, at: formatLocalTime(r.group.at, tz) }) : goDone(r.pending, false))}
         onSnooze={() => {
           const cfg = reminderConfigFor({ critical: r.group.critical }, plan.patient.settings);
           emit(r.pending.map((p) => ({ type: 'snoozed' as const, doseKey: p.dose.key, at: now, until: now + cfg.snoozeMin * 60_000 })));
@@ -449,7 +479,7 @@ export default function TabletApp() {
         group={g}
         now={now}
         touch={touch}
-        onYes={() => goDone(open, false)}
+        onYes={() => setUi({ k: 'when', views: open, at: formatLocalTime(g.at, tz) })}
         onNo={() => {
           // «No»: si registra come non presa e si mostra l'indicazione scelta dal familiare (docs/03 C8).
           const mode = open.some((d) => d.dose.ifForgotten === 'asap') ? 'asap' : open.every((d) => d.dose.ifForgotten === 'skip') ? 'skip' : 'ask';
