@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pìnnuli — modifica farmaco</title>
+<link rel="icon" href="../../brand/logo/favicon.svg" type="image/svg+xml">
+<style>
+body{margin:0;background:#FBF7F0;color:#231F1A;font-family:'Atkinson Hyperlegible',system-ui,'Segoe UI',Arial,sans-serif}
+a{color:#231F1A;text-decoration:none}a:hover{color:#231F1A}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+<style>
+html,body{min-height:100%}
+body{margin:0;background:#D9CFBF;display:flex;align-items:flex-start;justify-content:center;padding:24px;box-sizing:border-box}
+body > div{flex:none;border-radius:40px;overflow:hidden;box-shadow:0 20px 60px rgba(35,31,26,0.25)}
+</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FBF7F0; color: #231F1A; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 56px 20px 16px; overflow: hidden">
+    <header style="display: flex; align-items: center; gap: 12px">
+      <a href="Phone-Terapia.html" aria-label="Torna alla terapia" style="width: 48px; height: 48px; border-radius: 999px; border: 2px solid #E6DCCB; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" fill="none" stroke="#231F1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700">Modifica farmaco</h1>
+    </header>
+
+    <form style="display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="nome" style="font-size: 16px; font-weight: 700; color: #6B625A">Nome</label>
+        <input id="nome" type="text" value="Neo Furadantin" style="height: 56px; border: 2px solid #E6DCCB; border-radius: 14px; padding: 0 14px; font: inherit; font-size: 20px; background: #FFFFFF; color: #231F1A">
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <label for="quanto" style="font-size: 16px; font-weight: 700; color: #6B625A">Quanto</label>
+          <select id="quanto" style="width: 100%; min-width: 0; height: 56px; border: 2px solid #E6DCCB; border-radius: 14px; padding: 0 12px; font: inherit; font-size: 19px; background: #FFFFFF; color: #231F1A"><option>1 compressa</option><option>½ compressa</option><option>1 bustina</option><option>2 compresse</option></select>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="colore" style="font-size: 16px; font-weight: 700; color: #6B625A">Aspetto</label>
+          <select id="colore" style="width: 100%; min-width: 0; height: 56px; border: 2px solid #E6DCCB; border-radius: 14px; padding: 0 12px; font: inherit; font-size: 19px; background: #FFFFFF; color: #231F1A"><option>Capsula blu/bianca</option><option>Rotonda gialla</option><option>Rotonda bianca</option><option>Bustina</option></select>
+        </div>
+      </div>
+
+      <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-size: 16px; font-weight: 700; color: #6B625A; padding: 0; margin-bottom: 6px">Quando</legend>
+        <div style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 2px solid #E6DCCB; border-radius: 14px; padding: 8px 8px 8px 14px">
+          <label for="ora1" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Primo orario</label>
+          <input id="ora1" type="time" value="13:45" style="width: 118px; height: 44px; border: 0; font: inherit; font-size: 22px; font-weight: 700; background: transparent; color: #231F1A">
+          <span style="flex: 1; font-size: 17px; color: #231F1A">dopo pranzo</span>
+          <button type="button" aria-label="Rimuovi orario 13:45" style="width: 44px; height: 44px; border-radius: 999px; border: 0; background: #F1E7D6; display: inline-flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 7 L17 17 M17 7 L7 17" stroke="#6B625A" stroke-width="2.5" stroke-linecap="round"></path></svg></button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 2px solid #E6DCCB; border-radius: 14px; padding: 8px 8px 8px 14px">
+          <label for="ora2" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Secondo orario</label>
+          <input id="ora2" type="time" value="21:30" style="width: 118px; height: 44px; border: 0; font: inherit; font-size: 22px; font-weight: 700; background: transparent; color: #231F1A">
+          <span style="flex: 1; font-size: 17px; color: #231F1A">dopo cena</span>
+          <button type="button" aria-label="Rimuovi orario 21:30" style="width: 44px; height: 44px; border-radius: 999px; border: 0; background: #F1E7D6; display: inline-flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 7 L17 17 M17 7 L7 17" stroke="#6B625A" stroke-width="2.5" stroke-linecap="round"></path></svg></button>
+        </div>
+        <button type="button" style="height: 48px; border-radius: 14px; border: 2px dashed #B8AA98; background: transparent; font: inherit; font-size: 17px; font-weight: 700; color: #6B625A">+ Aggiungi un orario o una condizione</button>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-size: 16px; font-weight: 700; color: #6B625A; padding: 0; margin-bottom: 6px">Per quanto tempo</legend>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+          <label style="height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; border: 2px solid #E6DCCB; background: #FFFFFF; font-size: 17px; font-weight: 700"><input type="radio" name="durata" style="width: 22px; height: 22px; accent-color: #A63F19">Sempre</label>
+          <label style="height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; border: 2px solid #A63F19; background: #F6E3DA; font-size: 17px; font-weight: 700; color: #A63F19"><input type="radio" name="durata" checked style="width: 22px; height: 22px; accent-color: #A63F19">Per un periodo</label>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 17px">
+          <span>dal <strong>9 nov</strong> al</span>
+          <label for="fine" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Data di fine</label>
+          <input id="fine" type="date" value="2026-11-16" style="height: 48px; border: 2px solid #E6DCCB; border-radius: 12px; padding: 0 10px; font: inherit; font-size: 17px; background: #FFFFFF; color: #231F1A">
+          <span style="color: #6B625A">· 7 giorni</span>
+        </div>
+      </fieldset>
+    </form>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+      <a href="Phone-Terapia.html" style="height: 64px; display: flex; align-items: center; justify-content: center; background: #A63F19; border-radius: 18px; color: #FFFFFF; font-size: 21px; font-weight: 700; text-decoration: none">Salva: il tablet si aggiorna subito</a>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <button type="button" style="height: 52px; border-radius: 14px; border: 2px solid #E6DCCB; background: #FFFFFF; font: inherit; font-size: 17px; font-weight: 700; color: #231F1A">Metti in pausa</button>
+        <button type="button" style="height: 52px; border-radius: 14px; border: 2px solid #E6DCCB; background: #FFFFFF; font: inherit; font-size: 17px; font-weight: 700; color: #A3182E">Elimina</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
