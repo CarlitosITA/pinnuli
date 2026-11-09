@@ -16,6 +16,7 @@ RUN npm run build
 
 # ── Sito web ─────────────────────────────────────────────
 FROM node:22-slim AS web
+LABEL org.opencontainers.image.source="https://github.com/CarlitosITA/pinnuli"
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
 RUN groupadd --system pinnuli && useradd --system --gid pinnuli --no-create-home pinnuli
@@ -28,6 +29,7 @@ CMD ["node", "apps/web/server.js"]
 
 # ── Worker e strumenti (migrazioni, seed) ────────────────
 FROM build AS worker
+LABEL org.opencontainers.image.source="https://github.com/CarlitosITA/pinnuli"
 ENV NODE_ENV=production
 WORKDIR /app
 RUN groupadd --system pinnuli && useradd --system --gid pinnuli --no-create-home pinnuli && chown -R pinnuli:pinnuli /app/apps/web
