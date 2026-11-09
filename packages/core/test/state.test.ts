@@ -38,6 +38,16 @@ describe('stato della dose', () => {
     expect(deriveDoseState(sinemet0830, events, at(START, '08:41'), settings).status).toBe('due');
   });
 
+  it('«presa» con ora dichiarata (until): l\'ordine segue il tocco, l\'ora presa è quella dichiarata', () => {
+    const events = [ev('1', 'taken', at(START, '11:40')), ev('2', 'undo', at(START, '11:41')), ev('3', 'taken', at(START, '11:42'), { until: at(START, '08:35') })];
+    const s = deriveDoseState(sinemet0830, events, at(START, '11:43'), settings);
+    expect(s.status).toBe('taken');
+    if (s.status === 'taken') {
+      expect(s.takenAt).toBe(at(START, '08:35'));
+      expect(s.lateMin).toBe(5);
+    }
+  });
+
   it('inviare due volte lo stesso evento non fa danni (idempotenza)', () => {
     const e = ev('same', 'snoozed', at(START, '08:31'), { until: at(START, '08:41') });
     const s = deriveDoseState(sinemet0830, [e, e, e], at(START, '08:35'), settings);

@@ -176,9 +176,23 @@ function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key
         {d.changeNote ? <span className="cg-note">{d.changeNote}</span> : null}
         <div className="cg-actions">
           {d.status === 'taken' || d.status === 'not_taken' ? (
-            <button className="cg-btn quiet" disabled={busy === d.key + 'undo'} onClick={() => act(d.key, 'undo')}>
-              Annulla
-            </button>
+            <>
+              <button className="cg-btn quiet" disabled={busy === d.key + 'undo'} onClick={() => act(d.key, 'undo')}>
+                Annulla
+              </button>
+              {d.status === 'taken' ? (
+                <button
+                  className="cg-btn quiet"
+                  aria-expanded={timeOpen}
+                  onClick={() => {
+                    setTimeOpen(!timeOpen);
+                    setTimeVal(timeOf(d.takenAt ?? Date.now()));
+                  }}
+                >
+                  Cambia l’ora
+                </button>
+              ) : null}
+            </>
           ) : (
             <>
               {d.status !== 'scheduled' ? (
@@ -210,12 +224,13 @@ function DoseRow({ d, busy, act }: { d: DoseCard; busy: string | null; act: (key
             </>
           )}
         </div>
-        {timeOpen && d.status !== 'taken' && d.status !== 'not_taken' ? (
+        {timeOpen && d.status !== 'not_taken' ? (
           <form
             className="cg-actions"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              void act(d.key, 'taken', timeVal);
+              await act(d.key, 'taken', timeVal);
+              setTimeOpen(false);
             }}
           >
             <label htmlFor={`t-${d.key}`}>A che ora l’ha presa?</label>

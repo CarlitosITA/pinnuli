@@ -36,7 +36,7 @@ export function deriveDoseState(
     .filter((e) => (seen.has(e.id) ? false : (seen.add(e.id), true)))
     .sort((a, b) => a.at - b.at || a.id.localeCompare(b.id));
 
-  let human: { type: 'taken' | 'not_taken'; at: number; reason?: string | null } | null = null;
+  let human: { type: 'taken' | 'not_taken'; at: number; takenAt: number; reason?: string | null } | null = null;
   let conflict = false;
   let snoozeUntil: number | undefined;
   let snoozeCount = 0;
@@ -45,7 +45,8 @@ export function deriveDoseState(
   for (const e of events) {
     if (e.type === 'taken' || e.type === 'not_taken') {
       if (human && human.type !== e.type) conflict = true;
-      human = { type: e.type, at: e.at, reason: e.reason };
+      // `at` è quando è stato premuto (decide l'ordine); `until` su «taken» è l'ora dichiarata in cui è stata presa davvero.
+      human = { type: e.type, at: e.at, takenAt: e.type === 'taken' ? (e.until ?? e.at) : e.at, reason: e.reason };
       lastActionAt = e.at;
     } else if (e.type === 'undo') {
       human = null;
@@ -58,12 +59,12 @@ export function deriveDoseState(
   }
 
   if (human?.type === 'taken') {
-    const lateMin = Math.max(0, Math.round((human.at - dose.scheduledAt) / 60_000));
+    const lateMin = Math.max(0, Math.round((human.takenAt - dose.scheduledAt) / 60_000));
     return {
       status: 'taken',
-      takenAt: human.at,
+      takenAt: human.takenAt,
       lateMin,
-      early: human.at < dose.scheduledAt,
+      early: human.takenAt < dose.scheduledAt,
       snoozeCount,
       conflict,
       lastActionAt,

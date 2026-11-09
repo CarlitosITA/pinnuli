@@ -107,8 +107,9 @@ export async function runEscalationTick(db: Db, now: number, notifier: Notifier)
         const member = chain.find((m) => m.userId === a.recipientUserId);
         if (!member?.telegramChatId) continue;
         const taken = events.filter((e) => e.doseKey === a.doseKey && e.type === 'taken').sort((x, y) => y.at - x.at)[0];
+        const takenAt = taken ? (taken.until ?? taken.at) : null;
         const text = taken
-          ? `✓ Risolto: ${patient.name} ha preso la dose, alle ${formatLocalTime(taken.at, patient.tz)}.`
+          ? `✓ Risolto: ${patient.name} ha preso la dose, alle ${formatLocalTime(takenAt!, patient.tz)}.`
           : `✓ Risolto: la dose di ${patient.name} è stata sistemata.`;
         if (await notifier.sendTelegram(member.telegramChatId, text)) result.sent += 1;
       }

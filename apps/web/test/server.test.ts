@@ -519,12 +519,41 @@ describe('dose presa ma non confermata sul dispositivo', () => {
     expect(view.lateMin).toBe(5);
   });
 
-  it('segnata senza ora vale «adesso»; un\'ora nel futuro o su una dose già risolta è rifiutata', async () => {
+  it('segnata senza ora vale «adesso»; un\'ora nel futuro è rifiutata', async () => {
     const now = at('11:40');
     const { d } = await state('08:30', now);
     await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '12:00' }, now)).rejects.toThrow(/non è ancora arrivata/);
     await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken' }, now);
     expect((await state('08:30', now)).view.takenAt).toBe(now);
-    await expect(caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, now + 1000)).rejects.toThrow(/risposta più recente/);
+  });
+
+  it('dopo «Annulla» si può segnare di nuovo con l\'ora vera (era il bug: «l\'ora non si può cambiare»)', async () => {
+    const { d } = await state('08:30', at('11:40'));
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken' }, at('11:40'));
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'undo' }, at('11:41'));
+    expect((await state('08:30', at('11:42'))).view.status).toBe('missed'); // annullata: di nuovo senza risposta
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:35' }, at('11:42'));
+    const { view } = await state('08:30', at('11:43'));
+    expect(view.status).toBe('taken');
+    expect(view.takenAt).toBe(at('08:35'));
+    expect(view.lateMin).toBe(5);
+  });
+
+  it('si può correggere l\'ora di una dose già segnata', async () => {
+    const { d } = await state('08:30', at('11:40'));
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken' }, at('11:40'));
+    await caregiverDoseAction(db, w.patient.id, 'test', { doseKey: d.key, type: 'taken', time: '08:31' }, at('11:41'));
+    const { view } = await state('08:30', at('11:42'));
+    expect(view.takenAt).toBe(at('08:31'));
+    expect(view.lateMin).toBe(1);
+  });
+
+  it('dal tablet, «all\'ora giusta» (until) resta valida anche dopo un annulla e un nuovo tocco', async () => {
+    const { d } = await state('08:30', at('11:40'));
+    await recordEvents(db, w.patient.id, [{ id: 'evt-tab-ontime1', type: 'taken', doseKey: d.key, at: at('11:40'), until: d.scheduledAt }], 'device:x', at('11:40'));
+    expect((await state('08:30', at('11:41'))).view.lateMin).toBe(0);
+    await recordEvents(db, w.patient.id, [{ id: 'evt-tab-undo-0001', type: 'undo', doseKey: d.key, at: at('11:40') + 5000 }], 'device:x', at('11:41'));
+    await recordEvents(db, w.patient.id, [{ id: 'evt-tab-now-00001', type: 'taken', doseKey: d.key, at: at('11:42') }], 'device:x', at('11:42'));
+    expect((await state('08:30', at('11:43'))).view.takenAt).toBe(at('11:42'));
   });
 });

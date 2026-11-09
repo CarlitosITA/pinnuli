@@ -151,9 +151,9 @@ export interface DoseEvent {
   id: string;
   doseKey: string;
   type: DoseEventType;
-  /** Ora reale in cui è successo (UTC ms). */
+  /** Ora reale in cui è stato premuto il tasto (UTC ms): decide l'ordine tra le risposte. */
   at: number;
-  /** Per snoozed: fino a quando. Per taken: ora dichiarata se diversa. */
+  /** Per snoozed: fino a quando. Per taken: ora in cui è stata presa davvero, se diversa da `at` (es. «all'ora giusta»). */
   until?: number;
   reason?: string | null;
   actor?: string | null;
