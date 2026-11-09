@@ -12,7 +12,7 @@ app.pinnuli.it {
 	}
 }
 
-# pinnuli.it e pinnuli.com portano all'app (una landing arriverà dopo).
-pinnuli.it, www.pinnuli.it, pinnuli.com, www.pinnuli.com {
+# Tutti gli altri nomi portano all'app (una landing separata arriverà dopo).
+pinnuli.it, www.pinnuli.it, pinnuli.com, www.pinnuli.com, app.pinnuli.com {
 	redir https://app.pinnuli.it{uri} permanent
 }
