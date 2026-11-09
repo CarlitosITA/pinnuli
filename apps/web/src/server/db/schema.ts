@@ -294,6 +294,8 @@ export const pushLog = pgTable(
     groupId: text('group_id').notNull(),
     count: integer('count').notNull().default(0),
     lastSentMs: ms('last_sent_ms').notNull(),
+    /** Il promemoria è finito e la notifica è stata sostituita con «Segnata». */
+    closed: boolean('closed').notNull().default(false),
   },
   (t) => [primaryKey({ columns: [t.subscriptionId, t.groupId] })],
 );

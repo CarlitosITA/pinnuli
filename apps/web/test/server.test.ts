@@ -379,6 +379,9 @@ describe('avvisi push sul telefono', () => {
     expect(sender.sent[1]!.payload.title).toContain('ancora da confermare');
     const d = await doseAt(w.patient.id, '08:30', 'Sinemet');
     await recordEvents(db, w.patient.id, [{ id: 'evt-sin-push01', type: 'taken', doseKey: d.key, at: at('08:37') }], 'device:x', at('08:37'));
+    // Dopo la conferma non partono più promemoria: solo la notifica «Segnata», una volta.
+    expect((await runPushTick(db, at('08:38'), sender)).sent).toBe(1);
+    expect(sender.sent[sender.sent.length - 1]!.payload.kind).toBe('done');
     expect((await runPushTick(db, at('08:50'), sender)).sent).toBe(0);
   });
 
@@ -401,6 +404,31 @@ describe('avvisi push sul telefono', () => {
     await updatePatient(db, w.patient.id, 'test', { paused: true }, at('08:31'));
     const sender = createMemoryPushSender();
     expect((await runPushTick(db, at('08:32'), sender)).sent).toBe(0);
+  });
+
+  it('se la dose viene segnata altrove, il telefono riceve «Segnata» che sostituisce il promemoria, una volta sola', async () => {
+    await phone();
+    await lactoTaken();
+    const sender = createMemoryPushSender();
+    await runPushTick(db, at('08:30'), sender);
+    const d = await doseAt(w.patient.id, '08:30', 'Sinemet');
+    await recordEvents(db, w.patient.id, [{ id: 'evt-sin-push02', type: 'taken', doseKey: d.key, at: at('08:33') }], 'device:tablet', at('08:33'));
+    expect((await runPushTick(db, at('08:34'), sender)).sent).toBe(1);
+    const last = sender.sent[sender.sent.length - 1]!;
+    expect(last.payload.kind).toBe('done');
+    expect(last.payload.title).toContain('segnata');
+    expect(last.payload.body).toContain('08:33');
+    expect(last.payload.tag).toBe(sender.sent[0]!.payload.tag); // stessa etichetta: sostituisce
+    expect((await runPushTick(db, at('08:35'), sender)).sent).toBe(0);
+  });
+
+  it('un promemoria mai notificato non genera «Segnata»', async () => {
+    await phone();
+    await lactoTaken();
+    const sender = createMemoryPushSender();
+    const d = await doseAt(w.patient.id, '08:30', 'Sinemet');
+    await recordEvents(db, w.patient.id, [{ id: 'evt-sin-push03', type: 'taken', doseKey: d.key, at: at('08:20') }], 'device:tablet', at('08:20'));
+    expect((await runPushTick(db, at('08:40'), sender)).sent).toBe(0);
   });
 
   it('un telefono scollegato non riceve più avvisi', async () => {

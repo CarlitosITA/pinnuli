@@ -1,0 +1,1 @@
+ALTER TABLE "push_log" ADD COLUMN "closed" boolean DEFAULT false NOT NULL;
