@@ -360,7 +360,7 @@ export async function caregiverDoseAction(
   input: { doseKey: string; type: 'taken' | 'not_taken' | 'undo'; reason?: string | null; at?: number; time?: string },
   now = Date.now(),
 ) {
-  let when = input.at;
+  let takenTime: number | undefined;
   if (input.time) {
     // «L'ha presa alle 08:40»: l'ora vera, non quella in cui il familiare se ne accorge.
     if (input.type !== 'taken') throw new CommandError('L’ora si può indicare solo per una dose presa', 400);
@@ -368,18 +368,21 @@ export async function caregiverDoseAction(
     if (!dose) throw new CommandError('Dose non trovata', 404);
     const [patient] = await db.select({ tz: schema.patients.tz }).from(schema.patients).where(eq(schema.patients.id, patientId));
     const tz = patient?.tz ?? 'Europe/Rome';
-    when = localToUtc(dose.day, input.time as Hhmm, tz);
+    let when = localToUtc(dose.day, input.time as Hhmm, tz);
     // Dopo la mezzanotte (la giornata finisce alle 04:00): «00:30» per una dose delle 23:00 è la notte dopo.
     if (when < dose.scheduledAt - 3 * 3600_000) when = localToUtc(addDays(dose.day, 1), input.time as Hhmm, tz);
     if (when > now) throw new CommandError('Quest’ora non è ancora arrivata', 400);
-    // Le risposte si ordinano per ora reale: una risposta più recente coprirebbe questa. Solo per dosi ancora senza risposta.
-    const earlier = await db.select({ type: schema.doseEvents.type, at: schema.doseEvents.atMs }).from(schema.doseEvents).where(eq(schema.doseEvents.doseKey, input.doseKey));
-    if (earlier.some((e) => (e.type === 'taken' || e.type === 'not_taken' || e.type === 'undo') && e.at >= when!)) {
-      throw new CommandError('Questa dose ha già una risposta più recente: l’ora non si può cambiare.', 409);
-    }
+    takenTime = when;
   }
-  const at = Math.min(when ?? now, now);
-  const res = await recordEvents(db, patientId, [{ id: newId(), type: input.type, doseKey: input.doseKey, at, reason: input.reason ?? null }], actor, now);
+  // `at` = quando il familiare preme (ordina le risposte, anche dopo un «Annulla»); `until` = l'ora vera in cui l'ha presa.
+  const at = Math.min(input.at ?? now, now);
+  const res = await recordEvents(
+    db,
+    patientId,
+    [{ id: newId(), type: input.type, doseKey: input.doseKey, at, until: takenTime !== undefined ? Math.min(takenTime, at) : undefined, reason: input.reason ?? null }],
+    actor,
+    now,
+  );
   if (!res.accepted.length) throw new CommandError('Dose non trovata', 404);
   await resolveAlertsForResolvedDoses(db, patientId, now);
   await audit(db, { patientId, actor, action: input.type, entity: 'dose', entityId: input.doseKey, after: { reason: input.reason ?? null, time: input.time ?? null } }, now);

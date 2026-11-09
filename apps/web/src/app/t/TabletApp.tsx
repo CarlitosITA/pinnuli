@@ -149,9 +149,9 @@ export default function TabletApp() {
   // ─── azioni ───
   const goDone = useCallback(
     (views: DoseView[], early: boolean, onTime = false) => {
-      // «All'ora giusta»: la dose si segna all'ora prevista, così non risulta in ritardo (e l'annulla, scritto dopo, la copre).
-      const at = onTime ? Math.min(...views.map((v) => v.dose.scheduledAt)) : now;
-      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at: onTime ? v.dose.scheduledAt : at })));
+      // «All'ora giusta»: `at` resta adesso (ordina le risposte), `until` è l'ora prevista: la dose non risulta in ritardo.
+      const at = now;
+      emit(views.map((v) => ({ type: 'taken' as const, doseKey: v.dose.key, at, ...(onTime ? { until: v.dose.scheduledAt } : {}) })));
       playConfirmSound();
       stopSpeaking();
       navigator.vibrate?.(40);
@@ -160,8 +160,8 @@ export default function TabletApp() {
         k: 'done',
         keys: views.map((v) => v.dose.key),
         names: views.map((v) => v.med.name + (v.med.distinguishing ? ` ${v.med.distinguishing.toLowerCase()}` : '')),
-        at,
-        until: now + secs * 1000, // il conto alla rovescia dell'annulla parte da adesso, anche se la dose è segnata all'ora giusta
+        at: onTime ? Math.min(...views.map((v) => v.dose.scheduledAt)) : at, // ora mostrata nella schermata «Fatto»
+        until: now + secs * 1000,
         early,
       });
     },

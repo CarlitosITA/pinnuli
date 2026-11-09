@@ -83,6 +83,19 @@ try {
   await cg.waitForSelector('[data-testid="dose"][data-status="taken"]', { timeout: 15_000 });
   console.log('  ✓ il familiare vede "Presa"');
 
+  // 5b. Il familiare corregge l'ora (era presa in orario), poi annulla e rimette l'ora: deve funzionare.
+  await cg.click('button:has-text("Cambia l’ora")');
+  await cg.fill('input[type=time]', hhmm);
+  await cg.click('button:has-text("Conferma l’ora")');
+  await cg.waitForSelector(`[data-status="taken"]:has-text("alle ${hhmm}")`);
+  await cg.click('button:has-text("Annulla")');
+  await cg.waitForSelector('button:has-text("Presa a un’altra ora")');
+  await cg.click('button:has-text("Presa a un’altra ora")');
+  await cg.fill('input[type=time]', hhmm);
+  await cg.click('button:has-text("Conferma l’ora")');
+  await cg.waitForSelector(`[data-status="taken"]:has-text("alle ${hhmm}")`);
+  console.log('  ✓ ora corretta, annullo e di nuovo con l’ora');
+
   // 6. Un secondo familiare (la sorella) viene invitato con un link e sceglie da sé email e password.
   await cg.goto(`${BASE}/app/altro`);
   await cg.fill('#inv-name', 'Maria');

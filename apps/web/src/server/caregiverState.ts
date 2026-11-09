@@ -295,7 +295,7 @@ export async function buildHistory(db: Db, patientId: string, now = Date.now(), 
       return {
         id: e.id,
         type: e.type,
-        at: e.at,
+        at: e.type === 'taken' ? (e.until ?? e.at) : e.at,
         medication: d ? (medName.get(d.medicationId) ?? '') : '',
         scheduled: d?.localTime ?? '',
         day: d?.day ?? '',
