@@ -1,0 +1,18 @@
+# Da AGGIUNGERE come file nuovo in ~/caddy-extra/ (accanto a civitask.caddy e strato.caddy).
+# Il Caddy di Votia è in un container: per raggiungere Pìnnuli (che ascolta solo su 127.0.0.1 dell'host)
+# si usa l'indirizzo del gateway Docker dell'host. Verificarlo prima con:
+#   docker exec votia-caddy-1 getent hosts host.docker.internal   (oppure l'IP del bridge, di solito 172.17.0.1)
+# Poi, a caldo e senza riavvio:  docker exec votia-caddy-1 caddy validate --config /etc/caddy/Caddyfile
+#                                 docker exec votia-caddy-1 caddy reload   --config /etc/caddy/Caddyfile
+app.pinnuli.it {
+	encode zstd gzip
+	reverse_proxy host.docker.internal:38100 {
+		# Aggiornamenti in tempo reale (SSE): niente buffer.
+		flush_interval -1
+	}
+}
+
+# pinnuli.it e pinnuli.com portano all'app (una landing arriverà dopo).
+pinnuli.it, www.pinnuli.it, pinnuli.com, www.pinnuli.com {
+	redir https://app.pinnuli.it{uri} permanent
+}

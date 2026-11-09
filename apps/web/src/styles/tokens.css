@@ -1,0 +1,49 @@
+/* Pìnnuli — token di design come variabili CSS. Fonte: brand/tokens/tokens.json */
+:root {
+  --pn-calce: #FBF7F0;
+  --pn-sabbia: #F1E7D6;
+  --pn-lino: #E6DCCB;
+  --pn-bianco: #FFFFFF;
+  --pn-carrubo: #231F1A;
+  --pn-pietra: #6B625A;
+  --pn-terracotta: #A63F19;
+  --pn-terracotta-tinta: #F6E3DA;
+  --pn-ulivo: #3E6B2F;
+  --pn-ulivo-tinta: #E3EDD9;
+  --pn-mare: #1D5C8A;
+  --pn-rubino: #A3182E;
+
+  --pn-sfondo: var(--pn-calce);
+  --pn-superficie: var(--pn-bianco);
+  --pn-superficie-2: var(--pn-sabbia);
+  --pn-bordo: var(--pn-lino);
+  --pn-testo: var(--pn-carrubo);
+  --pn-testo-2: var(--pn-pietra);
+  --pn-accento: var(--pn-terracotta);
+  --pn-ok: var(--pn-ulivo);
+  --pn-info: var(--pn-mare);
+  --pn-allarme: var(--pn-rubino);
+
+  --pn-font-ui: 'Atkinson Hyperlegible', system-ui, 'Segoe UI', Arial, sans-serif;
+  --pn-font-display: 'Young Serif', Georgia, serif;
+
+  --pn-r-scheda: 28px;
+  --pn-r-tasto: 24px;
+  --pn-r-riga: 14px;
+}
+
+/* Tema notte: automatico di sera, oppure forzato con [data-tema="notte"] */
+:root[data-tema="notte"] {
+  --pn-sfondo: #16130F;
+  --pn-superficie: #231F1A;
+  --pn-superficie-2: #2E2821;
+  --pn-bordo: #2E2821;
+  --pn-testo: #F3EBDD;
+  --pn-testo-2: #B8AA98;
+  --pn-accento: #E0744A;
+  --pn-ok: #8FBF6A;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pn-pulsa { animation: none !important; }
+}

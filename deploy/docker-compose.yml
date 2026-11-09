@@ -1,0 +1,86 @@
+# Pìnnuli — installazione su VPS. Aggiunge, non modifica: tutto ha il prefisso `pinnuli_`,
+# vive in una rete propria e usa un PostgreSQL proprio, mai esposto all'esterno.
+# Da /opt/pinnuli:  cp .env.example .env  (compilare)  →  docker compose up -d
+name: pinnuli
+
+x-app: &app
+  restart: unless-stopped
+  networks: [pinnuli_net]
+  environment: &appenv
+    DATABASE_URL: postgres://pinnuli:${POSTGRES_PASSWORD}@pinnuli_db:5432/pinnuli
+    SESSION_SECRET: ${SESSION_SECRET}
+    APP_URL: ${APP_URL}
+    TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+    TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+    TZ: Europe/Rome
+  logging:
+    driver: json-file
+    options: { max-size: 10m, max-file: '3' }
+
+services:
+  pinnuli_db:
+    image: postgres:17-alpine
+    container_name: pinnuli_db
+    restart: unless-stopped
+    networks: [pinnuli_net]
+    environment:
+      POSTGRES_USER: pinnuli
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: pinnuli
+    volumes:
+      - pinnuli_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U pinnuli -d pinnuli']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 384m
+    cpus: 0.5
+
+  # Applica le migrazioni del database e si ferma.
+  pinnuli_migrate:
+    <<: *app
+    image: ${PINNULI_WORKER_IMAGE:-pinnuli-worker:local}
+    build: { context: .., dockerfile: deploy/Dockerfile, target: worker }
+    container_name: pinnuli_migrate
+    restart: 'no'
+    command: ['npm', 'run', 'db:migrate']
+    depends_on:
+      pinnuli_db: { condition: service_healthy }
+    mem_limit: 256m
+
+  pinnuli_web:
+    <<: *app
+    image: ${PINNULI_WEB_IMAGE:-pinnuli-web:local}
+    build: { context: .., dockerfile: deploy/Dockerfile, target: web }
+    container_name: pinnuli_web
+    # Solo localhost: il reverse proxy già presente sulla VPS inoltra qui. La porta va verificata libera.
+    ports: ['127.0.0.1:${PINNULI_PORT:-38100}:3000']
+    depends_on:
+      pinnuli_migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    mem_limit: 384m
+    cpus: 0.5
+
+  pinnuli_worker:
+    <<: *app
+    image: ${PINNULI_WORKER_IMAGE:-pinnuli-worker:local}
+    container_name: pinnuli_worker
+    depends_on:
+      pinnuli_migrate: { condition: service_completed_successfully }
+    mem_limit: 256m
+    cpus: 0.25
+
+networks:
+  pinnuli_net:
+    name: pinnuli_net
+
+volumes:
+  pinnuli_pgdata:
+    name: pinnuli_pgdata
