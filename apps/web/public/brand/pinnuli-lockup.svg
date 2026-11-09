@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" width="420" height="100" role="img" aria-label="Pìnnuli">
+  <!-- Logotipo in Atkinson Hyperlegible Bold. Per l'uso definitivo convertire il testo in tracciati (vedi brand/BRAND.md). -->
+  <circle cx="50" cy="50" r="46" fill="#A63F19"/>
+  <path d="M29 52 L44 67 L72 37" fill="none" stroke="#FBF7F0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="116" y="78" font-family="'Atkinson Hyperlegible', system-ui, Arial, sans-serif" font-weight="700" font-size="84" letter-spacing="-2.5" fill="#231F1A">pìnnuli</text>
+</svg>

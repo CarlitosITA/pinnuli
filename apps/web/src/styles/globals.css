@@ -1,0 +1,19 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light;
+}
+html[data-tema='notte'] {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--pn-sfondo);
+  color: var(--pn-testo);
+  font-family: var(--pn-font-ui);
+  line-height: 1.45;
+}

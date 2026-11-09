@@ -170,6 +170,7 @@ export const doses = pgTable(
     critical: boolean('critical').notNull().default(false),
     ifForgotten: text('if_forgotten').notNull().default('ask'),
     changeNote: text('change_note'),
+    note: text('note'),
   },
   (t) => [index('doses_patient_time_idx').on(t.patientId, t.scheduledAt)],
 );

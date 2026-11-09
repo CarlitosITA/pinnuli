@@ -91,6 +91,8 @@ export async function loadTherapy(db: Db, patient: PatientRow, now: number): Pro
 }
 
 const HORIZON_DAYS = 7;
+/** Tolleranza per una dose appena aggiunta all'ora corrente: chi la inserisce alle 08:31 per le 08:30 la vuole. */
+const NEW_DOSE_GRACE_MS = 10 * 60_000;
 
 type DoseRow = typeof doses.$inferSelect;
 
@@ -102,6 +104,7 @@ function sameDose(row: DoseRow, d: Dose): boolean {
     row.critical === d.critical &&
     row.ifForgotten === d.ifForgotten &&
     (row.changeNote ?? null) === (d.changeNote ?? null) &&
+    (row.note ?? null) === (d.note ?? null) &&
     row.medicationId === d.medicationId
   );
 }
@@ -142,6 +145,9 @@ export async function syncDoses(db: Db, patientId: string, now = Date.now()): Pr
   for (const g of generated) {
     const row = existingByKey.get(g.key);
     if (!row) {
+      // Una dose nuova che è già passata da un pezzo non si crea: una regola nuova vale da adesso in avanti
+      // (altrimenti, aggiungendo un farmaco alle 15, comparirebbero come "non prese" le dosi delle 8 e delle 12).
+      if (g.scheduledAt < now - NEW_DOSE_GRACE_MS) continue;
       toInsert.push({
         key: g.key,
         patientId,
@@ -155,6 +161,7 @@ export async function syncDoses(db: Db, patientId: string, now = Date.now()): Pr
         critical: g.critical,
         ifForgotten: g.ifForgotten,
         changeNote: g.changeNote ?? null,
+        note: g.note ?? null,
       });
       continue;
     }
@@ -172,6 +179,7 @@ export async function syncDoses(db: Db, patientId: string, now = Date.now()): Pr
         critical: g.critical,
         ifForgotten: g.ifForgotten,
         changeNote: g.changeNote ?? null,
+        note: g.note ?? null,
       })
       .where(eq(doses.key, g.key));
     changed = true;
@@ -208,6 +216,7 @@ export function rowToDose(r: DoseRow): Dose {
     critical: r.critical,
     ifForgotten: r.ifForgotten as Dose['ifForgotten'],
     changeNote: r.changeNote,
+    note: r.note,
   };
 }
 
@@ -249,6 +258,10 @@ export interface Plan {
   medications: Medication[];
   doses: Dose[];
   events: DoseEvent[];
+  /** "Buongiorno": serve solo se c'è una dose legata al risveglio che oggi non è ancora partita. */
+  wake: { needed: boolean; at: number | null };
+  /** Nome del familiare da chiamare se il tablet non riesce a collegarsi. */
+  contact: string | null;
 }
 
 /** Piano per i dispositivi: ieri, oggi e i prossimi 3 giorni (≥ 72 ore), con gli eventi di quelle dosi. */
@@ -261,6 +274,19 @@ export async function buildPlan(db: Db, patientId: string, now = Date.now()): Pr
     loadDosesBetween(db, patientId, addDays(today, -1), addDays(today, 3)),
   ]);
   const events = await loadEventsFor(db, patientId, ds.map((d) => d.key));
+  const [wakeRow] = await db.select().from(wakeEvents).where(and(eq(wakeEvents.patientId, patientId), eq(wakeEvents.day, today)));
+  const activeMeds = new Set(meds.filter((m) => m.status === 'active').map((m) => m.id));
+  const wakeRules = await db.select().from(rules).where(and(eq(rules.patientId, patientId), eq(rules.active, true)));
+  const wakeNeeded = wakeRules.some(
+    (r) => r.timing.kind === 'wake' && activeMeds.has(r.medicationId) && r.startDate <= today && (!r.endDate || r.endDate >= today),
+  );
+  const [first] = await db
+    .select({ name: schema.users.name })
+    .from(schema.memberships)
+    .innerJoin(schema.users, eq(schema.users.id, schema.memberships.userId))
+    .where(eq(schema.memberships.circleId, patient.circleId))
+    .orderBy(schema.memberships.chainPosition)
+    .limit(1);
   return {
     serverNow: now,
     version: patient.version,
@@ -269,6 +295,8 @@ export async function buildPlan(db: Db, patientId: string, now = Date.now()): Pr
     medications: meds.filter((m) => m.status !== 'archived').map(toMedication),
     doses: ds,
     events,
+    wake: { needed: wakeNeeded && !patient.paused, at: wakeRow?.atMs ?? null },
+    contact: first?.name ?? null,
   };
 }
 

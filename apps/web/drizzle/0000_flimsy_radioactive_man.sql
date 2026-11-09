@@ -76,7 +76,8 @@ CREATE TABLE "doses" (
 	"local_time" text NOT NULL,
 	"critical" boolean DEFAULT false NOT NULL,
 	"if_forgotten" text DEFAULT 'ask' NOT NULL,
-	"change_note" text
+	"change_note" text,
+	"note" text
 );
 --> statement-breakpoint
 CREATE TABLE "medications" (

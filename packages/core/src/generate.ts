@@ -158,6 +158,7 @@ export function generateDoses(input: TherapyInput, from: DayKey, to: DayKey): Do
         critical: med.critical,
         ifForgotten: med.ifForgotten,
         changeNote: note,
+        note: rule.note ?? null,
       });
     }
 

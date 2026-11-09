@@ -1,5 +1,5 @@
 {
-  "id": "e3619941-3aad-448b-9bdc-136562ea5641",
+  "id": "d0b751fa-93e1-4128-8972-4474a20dd08d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -589,6 +589,12 @@
         },
         "change_note": {
           "name": "change_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
           "type": "text",
           "primaryKey": false,
           "notNull": false

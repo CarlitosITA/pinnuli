@@ -139,6 +139,8 @@ export interface Dose {
   ifForgotten: IfForgotten;
   /** Testo discreto da mostrare sulla dose ("cambiata fino a ven 13"). */
   changeNote?: string | null;
+  /** Istruzione della regola ("Dopo cena", "Mezza compressa: spezzala lungo la linea"). */
+  note?: string | null;
   asNeeded?: boolean;
 }
 

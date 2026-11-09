@@ -323,3 +323,22 @@ describe('stato per il familiare', () => {
     expect(s.next?.localTime).toBe('12:30');
   });
 });
+
+describe('regole nuove a metà giornata', () => {
+  it('un farmaco aggiunto alle 15 non crea dosi "non prese" per le 8 e le 12', async () => {
+    const now = at('15:00');
+    const { id } = await createMedication(db, w.patient.id, 'test', {
+      medication: { name: 'Nuovo', form: 'compressa', color: '#FFFFFF', critical: false, ifForgotten: 'ask', instructions: [] },
+      rules: [
+        { quantity: 1, timing: { kind: 'fixed', time: '08:00' }, days: { kind: 'daily' } },
+        { quantity: 1, timing: { kind: 'fixed', time: '12:00' }, days: { kind: 'daily' } },
+        { quantity: 1, timing: { kind: 'fixed', time: '15:05' }, days: { kind: 'daily' } },
+        { quantity: 1, timing: { kind: 'fixed', time: '20:00' }, days: { kind: 'daily' } },
+      ],
+    }, now);
+    const today = (await db.select().from(schema.doses).where(and(eq(schema.doses.medicationId, id), eq(schema.doses.day, '2026-11-09')))).map((d) => d.localTime).sort();
+    expect(today).toEqual(['15:05', '20:00']);
+    const tomorrow = await db.select().from(schema.doses).where(and(eq(schema.doses.medicationId, id), eq(schema.doses.day, '2026-11-10')));
+    expect(tomorrow).toHaveLength(4);
+  });
+});
