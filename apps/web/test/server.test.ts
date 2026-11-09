@@ -548,6 +548,20 @@ describe('dose presa ma non confermata sul dispositivo', () => {
     expect(view.lateMin).toBe(1);
   });
 
+  it('flusso del tablet di Giovanni: «Non confermata» → «L\'ho presa» → «all\'ora giusta», dopo una prova con annulla', async () => {
+    const { d } = await state('08:30', at('11:40'));
+    // prova precedente: presa adesso, poi «Ho sbagliato, annulla»
+    await recordEvents(db, w.patient.id, [{ id: 'evt-prova-0001', type: 'taken', doseKey: d.key, at: at('11:40') }], 'device:x', at('11:40'));
+    await recordEvents(db, w.patient.id, [{ id: 'evt-prova-0002', type: 'undo', doseKey: d.key, at: at('11:40') + 8000 }], 'device:x', at('11:41'));
+    expect((await state('08:30', at('11:45'))).view.status).toBe('missed'); // il tablet chiede di nuovo «L'hai presa?»
+    // seconda prova: «all'ora giusta»
+    await recordEvents(db, w.patient.id, [{ id: 'evt-prova-0003', type: 'taken', doseKey: d.key, at: at('11:50'), until: d.scheduledAt }], 'device:x', at('11:50'));
+    const { view } = await state('08:30', at('11:51'));
+    expect(view.status).toBe('taken');
+    expect(view.takenAt).toBe(d.scheduledAt);
+    expect(view.lateMin).toBe(0);
+  });
+
   it('dal tablet, «all\'ora giusta» (until) resta valida anche dopo un annulla e un nuovo tocco', async () => {
     const { d } = await state('08:30', at('11:40'));
     await recordEvents(db, w.patient.id, [{ id: 'evt-tab-ontime1', type: 'taken', doseKey: d.key, at: at('11:40'), until: d.scheduledAt }], 'device:x', at('11:40'));
