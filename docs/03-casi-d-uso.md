@@ -188,9 +188,10 @@ Il caregiver fotografa il foglio del medico; l'app propone una bozza di farmaci 
 ### UC-C1 · La giornata a colpo d'occhio (schermata di riposo)
 Sempre visibile quando non c'è un promemoria attivo. Contenuto, dall'alto:
 1. **Ora** grandissima, giorno della settimana e data per esteso ("Lunedì 9 novembre"), con indicazione del momento (mattina / pomeriggio / sera) e saluto per nome.
-2. **Prossima dose**: nome, foto, quantità, ora, e quanto manca ("tra 25 minuti").
-3. **Oggi**: la lista dei momenti della giornata, con stato chiaro: ✓ verde "presa alle 08:34", ○ grigio "alle 16:30", ! arancione "non confermata".
-4. In basso, piccoli e distanti dal resto: indicatore di connessione e, se previsto, il tasto "Avvisa Giovanni".
+2. **Da confermare** (solo se c'è una dose rimasta senza risposta): riquadro arancione in evidenza, toccabile, che apre UC-C8. Ha la precedenza sulla prossima dose.
+3. **Prossima dose**: riquadro toccabile con nome, foto, quantità, ora e quanto manca ("tra 25 minuti"). Toccandolo si apre UC-C10.
+4. **Oggi**: la lista dei momenti della giornata, con stato chiaro: ✓ verde "presa alle 08:34", ○ grigio "alle 16:30", ! arancione "da confermare". **La lista è solo da leggere**: le righe non reagiscono al tocco, così una mano che trema appoggiata sullo schermo non può cambiare nulla. Le uniche zone toccabili della schermata sono i riquadri dei punti 2 e 3.
+5. In basso, piccoli e distanti dal resto: indicatore di connessione e, se previsto, il tasto "Avvisa Giovanni".
 
 Nessun menu, nessuna impostazione, nessun link. L'accesso alle impostazioni del tablet è nascosto (pressione prolungata di 5 secondi in un angolo + PIN del caregiver).
 
@@ -213,7 +214,7 @@ All'ora prevista:
 Se il momento ha più farmaci, la schermata mostra tutte le foto in riquadri e il tasto diventa **"LE HO PRESE TUTTE (2)"**. Un tasto secondario "Non tutte" apre la lista con un tasto grande per ciascun farmaco. Le dosi non confermate restano dovute.
 
 ### UC-C5 · Annullare
-Entro 10 secondi: "Annulla" riporta la dose a *dovuta* e il promemoria riprende. Dopo i 10 secondi l'annullamento è possibile solo dal caregiver (UC-E4), per evitare che un tocco accidentale sulla lista cancelli una conferma.
+Entro 10 secondi: "Annulla" riporta la dose a *dovuta* e il promemoria riprende. Il tasto "Annulla" sta in basso a sinistra, lontano dal punto in cui c'era "L'HO PRESA", così un secondo tocco involontario non lo colpisce. Dopo i 10 secondi l'annullamento è possibile solo dal caregiver (UC-E4), per evitare che un tocco accidentale sulla lista cancelli una conferma.
 
 ### UC-C6 · "Tra 10 minuti"
 Il promemoria si chiude e torna dopo 10 minuti (durata configurabile). Numero massimo di rinvii: 3 per i farmaci normali, 1 per quelli a orario critico (configurabile). Raggiunto il massimo, il tasto non compare più.
@@ -222,13 +223,13 @@ Il promemoria si chiude e torna dopo 10 minuti (durata configurabile). Numero ma
 Tasto discreto. Apre una schermata con tre motivi grandi: *Non ce l'ho*, *Non mi sento bene*, *Altro*, più "Torna indietro". La dose diventa *non presa* e il caregiver riceve subito una notifica.
 
 ### UC-C8 · Dose senza risposta
-Se una dose è diventata *mancata*, nella giornata compare in arancione. Toccandola: "Il Sinemet delle 12:30 non è stato confermato. L'hai presa?" con **"Sì, l'ho presa"** e **"No"**. Se "No", l'app mostra il comportamento scelto dal caregiver per quel farmaco (es. "Chiedi a Giovanni prima di prenderla" con il tasto per avvisarlo). L'app non dice mai di prendere due dosi insieme.
+Se una dose è diventata *mancata*, compare in arancione nella lista e, in evidenza sopra la prossima dose, il riquadro "Da confermare". Toccando il riquadro: "Il Sinemet delle 12:30 non è stato confermato. L'hai presa?" con **"Sì, l'ho presa"** e **"No"**. Se "No", l'app mostra il comportamento scelto dal caregiver per quel farmaco (es. "Chiedi a Giovanni prima di prenderla" con il tasto per avvisarlo). L'app non dice mai di prendere due dosi insieme.
 
 ### UC-C9 · "L'ho già presa?"
-Toccando una dose già presa compare a tutto schermo: "**Sì, l'hai già presa** alle 08:34. Non serve prenderla di nuovo." Toccando una dose futura: "Il Sinemet è alle 16:30, tra 2 ore." Questo caso è il motivo principale per cui la lista è sempre visibile.
+La risposta è sempre sullo schermo senza toccare nulla: ogni dose presa mostra ✓ e l'ora ("presa alle 08:34"), scritte abbastanza grandi da leggerle dal tavolo. Questo caso è il motivo principale per cui la lista è sempre visibile. Se il paziente prova comunque a confermare di nuovo una dose (ad esempio da un promemoria riaperto su un altro dispositivo), compare: "**Sì, l'hai già presa** alle 08:34. Non serve prenderla di nuovo."
 
 ### UC-C10 · Prendere in anticipo
-Una dose futura entro 60 minuti (configurabile; per i farmaci critici default 30) si può confermare in anticipo toccandola: "Vuoi segnare il Sinemet delle 16:30 come preso adesso?" → "Sì, l'ho presa". Oltre la finestra la conferma anticipata non è disponibile, per evitare confusioni.
+La prossima dose, se mancano al massimo 60 minuti (configurabile; per i farmaci critici default 30), si può confermare in anticipo toccando il riquadro "Prossima dose": "Vuoi segnare il Sinemet delle 16:30 come preso adesso?" → "Sì, l'ho presa". Oltre la finestra il riquadro mostra solo "Il Sinemet è alle 16:30, tra 2 ore" e la conferma anticipata non è disponibile, per evitare confusioni. Le dosi successive alla prossima non si possono confermare in anticipo.
 
 ### UC-C11 · "Buongiorno"
 Al mattino, prima della prima dose, la schermata mostra "Buongiorno Anna!" con un tasto grande "Mi sono svegliata". Toccarlo: rende dovute le dosi "al risveglio", sblocca l'audio del browser per tutta la giornata e manda al caregiver un segnale discreto "Mamma è sveglia" (facoltativo, utile anche come segno di benessere). Se non viene toccato, le dosi al risveglio scattano all'orario abituale di sveglia.
@@ -366,7 +367,7 @@ Ogni riga è anche un caso di test.
 |---|-----------|----------------------|
 | H1 | Il paziente tocca "L'ho presa" 4 volte di fila per il tremore | Una sola conferma. I tocchi entro 800 ms dal primo vengono ignorati. |
 | H2 | Il paziente tocca per sbaglio "L'ho presa" senza averla presa | "Annulla" grande per 10 secondi. Dopo, correzione dal caregiver. |
-| H3 | Il paziente non ricorda se l'ha presa e tocca di nuovo la dose | "Sì, l'hai già presa alle 08:34." Nessuna seconda conferma possibile. |
+| H3 | Il paziente non ricorda se l'ha presa | La lista mostra "✓ presa alle 08:34". Un tentativo di conferma da un altro dispositivo risponde "Sì, l'hai già presa alle 08:34". Nessuna seconda conferma possibile. |
 | H4 | Due dosi alla stessa ora | Un solo promemoria, tasto "Le ho prese tutte (2)". |
 | H5 | Una dose ancora dovuta quando arriva la successiva dello stesso farmaco | La precedente diventa *mancata* 30 minuti prima della successiva (o prima, secondo la finestra). Mai due dosi dello stesso farmaco dovute insieme. Si mostra la regola "se dimenticato". |
 | H6 | Il Wi-Fi cade alle 12:00 e torna alle 15:00 | Il tablet suona e registra normalmente. Il server sa che il tablet è offline e **non** manda allerte "dose mancata", ma "tablet offline: non sappiamo se ha preso il Sinemet delle 12:30". Al ritorno della rete le conferme arrivano con l'ora reale. |

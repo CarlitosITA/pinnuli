@@ -8,15 +8,15 @@ Elenco delle schermate e dei loro stati, per guidare mockup e sviluppo. I riferi
 |---|-----------|--------------------|-----------|----|
 | P1 | **Collegamento** | codice in attesa · collegato | Logo, codice a 6 cifre enorme, QR, "Chiedi a un familiare di inquadrare questo codice" | A4 |
 | P2 | **Buongiorno** | mattino prima della sveglia | Saluto con nome, data, tasto "Mi sono svegliata" | C11 |
-| P3 | **Giornata (riposo)** | tutto in regola · una dose da confermare · dose cambiata temporaneamente · nessuna dose rimasta oggi · pausa totale | Ora, data, momento, prossima dose con foto e "tra 25 minuti", lista dei momenti con stato | C1 |
+| P3 | **Giornata (riposo)** | tutto in regola · con riquadro "Da confermare" · dose cambiata temporaneamente · nessuna dose rimasta oggi · pausa totale | Ora, data, momento, riquadro "Da confermare" (se serve), riquadro "Prossima dose" con foto e "tra 25 minuti", lista dei momenti con stato (solo lettura) | C1, C9 |
 | P4 | **Promemoria singolo** | prima chiamata · dopo ripetizioni (più evidente) · con istruzioni · mezza compressa · rinvii esauriti | Foto, nome, quantità con disegno, istruzioni con pittogramma, ora; "L'HO PRESA", "Tra 10 minuti", "Non la prendo" | C2, C3, C6 |
 | P5 | **Promemoria di gruppo** | 2 farmaci · 3+ farmaci | Riquadri con foto e quantità; "LE HO PRESE TUTTE (2)", "Non tutte" | C4 |
 | P6 | **Scelta singola nel gruppo** | parziale | Un tasto grande per farmaco, "Fatto" | C4 |
 | P7 | **Conferma avvenuta** | con "Annulla" visibile (10 s) | Grande ✓ verde, "Fatto", ora, tasto "Annulla" | C3, C5 |
 | P8 | **Non la prendo** | scelta motivo | Tre motivi grandi + "Torna indietro" | C7 |
 | P9 | **Dose senza risposta** | domanda · risposta "No" con istruzione "se dimenticato" | "Il Sinemet delle 12:30 non è stato confermato. L'hai presa?" | C8 |
-| P10 | **Già presa** | — | "Sì, l'hai già presa alle 08:34. Non serve prenderla di nuovo." | C9 |
-| P11 | **Dose futura** | prendibile in anticipo · troppo presto | "Il Sinemet è alle 16:30, tra 2 ore" / "Vuoi segnarla come presa adesso?" | C10 |
+| P10 | **Già presa** | — | "Sì, l'hai già presa alle 08:34. Non serve prenderla di nuovo." Compare solo se si tenta una seconda conferma (es. da un altro dispositivo). | C9 |
+| P11 | **Prossima dose aperta** | prendibile in anticipo · troppo presto | Si apre toccando il riquadro "Prossima dose". "Il Sinemet è alle 16:30, tra 2 ore" / "Vuoi segnarla come presa adesso?" | C10 |
 | P12 | **Notte** | riposo notturno · promemoria notturno | Sfondo scuro, ora, prossima dose | C14 |
 | P13 | **Avvisa familiare** (F1) | conferma · inviato · visto | Foto e nome del caregiver | C12 |
 | P14 | **Al bisogno** (F1) | elenco · conferma | Massimo 4 farmaci con foto | C13 |

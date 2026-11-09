@@ -24,7 +24,8 @@ Obiettivo minimo: **WCAG 2.2 livello AA su tutta l'app**, e **AAA dove applicabi
 |----------|:---:|:---:|
 | Tasto principale "L'HO PRESA" | intera larghezza utile × almeno 1/3 dell'altezza (≈ 200 px di altezza CSS) | intera larghezza × almeno 160 px |
 | Tasti secondari ("Tra 10 minuti", "Non tutte") | 120 px di altezza, larghezza ≥ 50% | 96 px di altezza |
-| Righe della lista "Oggi" | 96 px di altezza | 88 px |
+| Righe della lista "Oggi" (solo lettura, non toccabili) | 76 px di altezza | 72 px |
+| Riquadri "Prossima dose" e "Da confermare" | 160 px di altezza, intera larghezza | 128 px |
 | Distanza tra due bersagli | ≥ 32 px | ≥ 24 px |
 | Distanza dai bordi dello schermo | ≥ 24 px (le cornici e la custodia "mangiano" i tocchi) | ≥ 16 px |
 
@@ -38,6 +39,7 @@ Il riferimento WCAG (2.5.8) chiede 24 px e lo standard AAA (2.5.5) 44 px: qui si
 | **Tocchi ripetuti entro 800 ms sullo stesso tasto sono ignorati.** | Il tremore produce tocchi multipli involontari. Valore configurabile da 300 a 2000 ms. |
 | **Tocchi con più dita contemporaneamente: si considera solo il primo.** | Il palmo o altre dita appoggiate non devono attivare nulla. |
 | **Nessun gesto**: niente scorrimento laterale, doppio tocco, pressione lunga, pizzico, trascinamento. | Gesti complessi sono quasi impossibili con il tremore. L'unica pressione lunga è quella nascosta per accedere alle impostazioni del caregiver, voluta proprio perché il paziente non la attivi. |
+| **Nelle schermate di riposo le zone toccabili sono poche e grandi.** La lista "Oggi" è solo da leggere; si toccano solo i riquadri "Da confermare" e "Prossima dose". | Una mano appoggiata o che trema sopra la lista non deve poter cambiare nulla. |
 | **Nessuno scorrimento nella schermata del promemoria.** Tutto deve stare in un solo schermo. | Scorrere è difficile e nasconde informazioni. |
 | **La lista "Oggi" può scorrere solo se non sta nello schermo**, con indicatore visibile e scorrimento automatico per mantenere in vista la prossima dose. | |
 | **Nessuna conferma "Sei sicuro?"** per le azioni frequenti. Si usa l'annullamento entro 10 secondi. | Ogni passaggio in più raddoppia gli errori e la frustrazione. |
@@ -57,7 +59,7 @@ Consigliato anche attivare sul tablet le impostazioni di accessibilità del sist
 | Testo corrente minimo | 28 px | 22 px |
 | Testo minimo assoluto (etichette secondarie) | 22 px | 18 px |
 
-- Carattere senza grazie, ad alta leggibilità, con forme distinte per I/l/1 e O/0 (es. Atkinson Hyperlegible, progettato per ipovedenti; la scelta finale spetta al brand).
+- Carattere **Atkinson Hyperlegible** (progettato per ipovedenti, forme distinte per I/l/1 e O/0) in tutta l'app; il sito può usare un carattere con grazie per i titoli (Young Serif), mai nelle schermate del paziente.
 - Interlinea ≥ 1,4. Nessun testo in corsivo, nessun testo su immagini.
 - Parole intere, niente abbreviazioni ("compressa", non "cpr"; "minuti", non "min").
 - Tre livelli di dimensione impostabili dal caregiver: grande (default), molto grande, enorme. Il layout del promemoria resta in un solo schermo a tutti e tre i livelli.

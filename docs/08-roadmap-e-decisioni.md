@@ -63,6 +63,8 @@ Giovanni ha chiesto di procedere in autonomia. Queste sono le scelte fatte, tutt
 | D13 | Pinnuli non dà indicazioni cliniche; "se dimenticato" lo sceglie il caregiver | Regole automatiche sulle dosi dimenticate | Sicurezza del paziente e perimetro regolatorio. |
 | D14 | Pranzo alle 13:00 e cena alle 20:00 come routine iniziale della prima paziente | — | Ricavati dagli orari della terapia; da confermare. |
 | D15 | Documentazione e interfaccia in italiano; codice e nomi tecnici in inglese | Tutto in italiano | Convenzione comune; facilita librerie e collaboratori futuri. |
+| D16 | Lista "Oggi" del tablet solo da leggere; si toccano solo i riquadri "Da confermare" e "Prossima dose" (allineato ai mockup) | Righe toccabili da 96 px | Meno zone toccabili, meno tocchi accidentali; la lista risponde a "l'ho già presa?" senza interazione. |
+| D17 | Tasto "Annulla" in basso a sinistra, lontano dal punto di "L'HO PRESA" (allineato ai mockup) | Annulla nello stesso punto del tasto | Un secondo tocco involontario non annulla la conferma. |
 
 ## 8.3 Domande aperte
 
@@ -86,9 +88,9 @@ Non bloccano l'inizio dello sviluppo: per ognuna c'è un'ipotesi di lavoro.
 
 Le schermate da disegnare sono elencate in [09 – Inventario delle schermate](09-inventario-schermate.md), con contenuti e stati. Vincoli che il brand e i mockup devono rispettare:
 - dimensioni minime di testo e tasti e regole di contrasto della sezione [05](05-accessibilita.md);
-- palette con verde (presa), arancione (da confermare), rosso (non presa/mancata), grigio (futura) distinguibili anche per daltonici e sempre accompagnati da icona e parola;
+- palette di stato definita dal brand (valori in `brand/tokens/tokens.json`): **Ulivo** `#3E6B2F` = presa, **Terracotta** `#A63F19` = da confermare (anche colore del marchio e sfondo del promemoria), **Rubino** `#A3182E` = non presa/mancata, **Pietra** `#6B625A` = futura; sempre accompagnati da icona e parola;
 - tema chiaro e tema notte;
-- carattere ad alta leggibilità;
+- carattere Atkinson Hyperlegible;
 - un'icona/disegno per ogni forma di farmaco (compressa intera, mezza, capsula, bustina, gocce, flaconcino, cerotto, inalatore, iniezione);
 - pittogrammi per le istruzioni (a digiuno, a stomaco pieno, con acqua, sciogliere in acqua, dopo aver urinato, non masticare, spezzare);
 - un suono di promemoria e uno di conferma coerenti con il brand.
