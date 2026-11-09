@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -76,3 +77,25 @@ jobs:
       - uses: actions/checkout@v4
       - run: docker build -f deploy/Dockerfile --target web -t pinnuli-web:ci .
       - run: docker build -f deploy/Dockerfile --target worker -t pinnuli-worker:ci .
+
+  # Pubblica le immagini su GitHub Container Registry (solo da main o a mano). La VPS le scarica soltanto.
+  publish:
+    runs-on: ubuntu-latest
+    needs: [test, e2e, docker]
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          for target in web worker; do
+            docker build -f deploy/Dockerfile --target $target -t ghcr.io/$OWNER/pinnuli-$target:latest -t ghcr.io/$OWNER/pinnuli-$target:${{ github.sha }} .
+            docker push --all-tags ghcr.io/$OWNER/pinnuli-$target
+          done
