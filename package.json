@@ -1,0 +1,19 @@
+{
+  "name": "pinnuli",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Pìnnuli — le tue compresse, all'ora giusta.",
+  "workspaces": ["packages/*", "apps/*"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "npm run dev -w @pinnuli/web",
+    "build": "npm run build -w @pinnuli/web",
+    "start": "npm run start -w @pinnuli/web",
+    "worker": "npm run worker -w @pinnuli/web",
+    "test": "npm run test -w @pinnuli/core && npm run test -w @pinnuli/web",
+    "typecheck": "npm run typecheck -w @pinnuli/core && npm run typecheck -w @pinnuli/web",
+    "db:generate": "npm run db:generate -w @pinnuli/web",
+    "db:migrate": "npm run db:migrate -w @pinnuli/web",
+    "db:seed": "npm run db:seed -w @pinnuli/web"
+  }
+}
