@@ -72,6 +72,23 @@ self.addEventListener('push', (event) => {
       // Se la pagina è aperta e in vista, il promemoria suona e parla da solo: niente doppione.
       const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
       if (wins.some((w) => w.visibilityState === 'visible' && w.focused)) return;
+      if (data.kind === 'done') {
+        // Dose già segnata su un altro dispositivo: «Segnata» prende il posto del promemoria (stessa etichetta) e sparisce da sola.
+        // Il browser vuole comunque una notifica per ogni push, quindi si mostra e si toglie dopo qualche secondo.
+        await self.registration.showNotification(data.title || 'Pìnnuli · segnata', {
+          body: data.body || 'La dose è stata segnata.',
+          tag: data.tag || 'dose',
+          silent: true,
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          lang: 'it',
+          data: { url: data.url || '/t' },
+        });
+        await new Promise((r) => setTimeout(r, 5000));
+        const shown = await self.registration.getNotifications({ tag: data.tag || 'dose' });
+        shown.forEach((n) => n.close());
+        return;
+      }
       await self.registration.showNotification(data.title || 'Pìnnuli', {
         body: data.body || 'È l’ora della medicina. Tocca per aprire.',
         tag: data.tag || 'dose',

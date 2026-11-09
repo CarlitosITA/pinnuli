@@ -1,6 +1,6 @@
 import { and, eq, inArray, lt } from 'drizzle-orm';
 import webpush from 'web-push';
-import { addDays, formatLocalTime, patientDay, pickScreen } from '@pinnuli/core';
+import { addDays, buildViews, formatLocalTime, patientDay, pickScreen } from '@pinnuli/core';
 import { schema, type Db } from './db/client';
 import { env } from './env';
 import { newId } from './security';
@@ -14,6 +14,8 @@ export interface PushPayload {
   /** Stessa etichetta = la notifica nuova sostituisce la vecchia, invece di accumularsi. */
   tag: string;
   url: string;
+  /** `done`: la dose è già stata segnata altrove; sostituisce la notifica del promemoria e sparisce da sola. */
+  kind?: 'remind' | 'done';
 }
 
 export interface PushTarget {
@@ -120,39 +122,56 @@ export async function runPushTick(db: Db, now: number, sender: PushSender): Prom
     const doses = await loadDosesBetween(db, patient.id, addDays(day, -1), addDays(day, 1));
     const events = await loadEventsFor(db, patient.id, doses.map((d) => d.key));
     const meds = await db.select().from(medications).where(eq(medications.patientId, patient.id));
-    const screen = pickScreen(
-      doses,
-      meds.map((m) => ({
-        id: m.id,
-        name: m.name,
-        distinguishing: m.distinguishing,
-        form: m.form as never,
-        color: m.color,
-        critical: m.critical,
-        ifForgotten: m.ifForgotten as never,
-        status: m.status as never,
-        instructions: m.instructions,
-      })),
-      events,
-      now,
-      patient.settings,
-    );
-    if (screen.mode !== 'reminder' || !screen.reminder) continue;
+    const medsView = meds.map((m) => ({
+      id: m.id,
+      name: m.name,
+      distinguishing: m.distinguishing,
+      form: m.form as never,
+      color: m.color,
+      critical: m.critical,
+      ifForgotten: m.ifForgotten as never,
+      status: m.status as never,
+      instructions: m.instructions,
+    }));
+    const screen = pickScreen(doses, medsView, events, now, patient.settings);
+    const current = screen.mode === 'reminder' && screen.reminder ? screen.reminder : null;
+    const subIds = subs.map((s) => s.id);
+    const logs = await db.select().from(pushLog).where(inArray(pushLog.subscriptionId, subIds));
 
-    const { group, pending, minutesLate } = screen.reminder;
+    // Un promemoria già notificato e poi risolto (da un altro dispositivo, o dal familiare): la notifica si sostituisce con «Segnata».
+    for (const log of logs) {
+      if (log.closed || log.count === 0 || log.groupId === current?.group.id) continue;
+      const keys = log.groupId.slice(log.groupId.indexOf(':') + 1).split('+');
+      const views = buildViews(doses.filter((d) => keys.includes(d.key)), medsView, events, now, patient.settings);
+      if (!views.length || !views.every((v) => v.state.status === 'taken' || v.state.status === 'not_taken')) continue;
+      const sub = subs.find((x) => x.id === log.subscriptionId);
+      if (!sub) continue;
+      const taken = views.filter((v) => v.state.status === 'taken');
+      const at = Math.max(0, ...taken.map((v) => v.state.takenAt ?? 0));
+      const text = taken.length
+        ? { title: 'Pìnnuli · segnata ✓', body: `${names(taken)} segnata alle ${formatLocalTime(at, patient.tz)}.` }
+        : { title: 'Pìnnuli · segnata', body: `${names(views)} segnata come non presa.` };
+      const outcome = await sender.send(sub, { ...text, tag: `dose-${log.groupId}`, url: '/t', kind: 'done' });
+      if (outcome === 'gone') {
+        await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, sub.id));
+        result.removed += 1;
+        continue;
+      }
+      // Anche se l'invio non riesce non si insiste: il promemoria è comunque finito.
+      await db.update(pushLog).set({ closed: true }).where(and(eq(pushLog.subscriptionId, log.subscriptionId), eq(pushLog.groupId, log.groupId)));
+      if (outcome === 'ok') result.sent += 1;
+    }
+
+    if (!current) continue;
+    const { group, pending, minutesLate } = current;
     const due = pushesDue(minutesLate, group.critical);
     if (due === 0) continue;
     const text = pushText(names(pending), formatLocalTime(group.at, patient.tz), minutesLate);
-
-    const logs = await db
-      .select()
-      .from(pushLog)
-      .where(and(inArray(pushLog.subscriptionId, subs.map((s) => s.id)), eq(pushLog.groupId, group.id)));
-    const done = new Map(logs.map((l) => [l.subscriptionId, l.count]));
+    const done = new Map(logs.filter((l) => l.groupId === group.id).map((l) => [l.subscriptionId, l.count]));
 
     for (const sub of subs) {
       if ((done.get(sub.id) ?? 0) >= due) continue;
-      const outcome = await sender.send(sub, { ...text, tag: `dose-${group.id}`, url: '/t' });
+      const outcome = await sender.send(sub, { ...text, tag: `dose-${group.id}`, url: '/t', kind: 'remind' });
       if (outcome === 'gone') {
         await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, sub.id));
         result.removed += 1;
@@ -160,8 +179,8 @@ export async function runPushTick(db: Db, now: number, sender: PushSender): Prom
       }
       await db
         .insert(pushLog)
-        .values({ subscriptionId: sub.id, groupId: group.id, count: due, lastSentMs: now })
-        .onConflictDoUpdate({ target: [pushLog.subscriptionId, pushLog.groupId], set: { count: due, lastSentMs: now } });
+        .values({ subscriptionId: sub.id, groupId: group.id, count: due, lastSentMs: now, closed: false })
+        .onConflictDoUpdate({ target: [pushLog.subscriptionId, pushLog.groupId], set: { count: due, lastSentMs: now, closed: false } });
       if (outcome === 'ok') {
         result.sent += 1;
         await db.update(pushSubscriptions).set({ lastOkMs: now, failures: 0 }).where(eq(pushSubscriptions.id, sub.id));
