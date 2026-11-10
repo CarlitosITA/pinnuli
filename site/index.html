@@ -154,7 +154,7 @@ button.t-annulla { cursor: pointer; }
 .g-orologio span { font-size: 2.1cqw; color: var(--m-pietra); }
 .g-conto { justify-self: end; text-align: right; font-size: 2.1cqw; display: grid; gap: .7cqw; justify-items: end; }
 .g-barra { width: 18cqw; height: 1.1cqw; border-radius: 9cqw; background: var(--m-lino); overflow: hidden; }
-.g-barra i { display: block; height: 100%; width: 14%; background: var(--m-ulivo); border-radius: 9cqw; }
+.g-barra i { display: block; height: 100%; width: 33%; background: var(--m-ulivo); border-radius: 9cqw; }
 .g-corpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.25fr 1fr; gap: 2.2cqw; }
 .g-prossima { background: var(--m-bianco); border: .25cqw solid var(--m-terra); border-radius: 2.2cqw; padding: 2.2cqw 2.8cqw; display: flex; flex-direction: column; gap: 1cqw; }
 .g-prossima .eti { font-size: 1.7cqw; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--m-terra); }
@@ -507,13 +507,9 @@ button.t-annulla { cursor: pointer; }
     <div class="lato">
       <p class="occhiello">La storia</p>
       <h2>È nato per mia madre.</h2>
-      <div class="numeri">
-        <div><b>14</b><span>compresse al giorno, la terapia da cui è partito tutto</span></div>
-        <div><b>1</b><span>tasto solo, grande quanto mezza schermata</span></div>
-      </div>
     </div>
     <div class="lettera">
-      <p>Mia madre prende quattordici compresse al giorno, a orari precisi: una a digiuno, una prima di pranzo, una a metà. Le mani le tremano, e ricordarsi se una dose è già stata presa non è semplice.</p>
+      <p>Mia madre prende diverse medicine ogni giorno, a orari precisi. Ricordarsi quale tocca adesso, e se è già stata presa, non è semplice.</p>
       <p>Pìnnuli l'ho costruito per questo: uno schermo che mostra una cosa alla volta, un tasto grande per confermare, e un avviso a chi la segue solo quando serve.</p>
       <p>Lei è la prima paziente. Se può essere utile anche a casa tua, <strong>scrivimi e te lo attivo gratis.</strong></p>
       <div class="firma"><i aria-hidden="true">G</i><span>Giovanni Parato<br><a href="https://para.to" rel="noopener">para.to</a></span></div>
@@ -541,12 +537,12 @@ button.t-annulla { cursor: pointer; }
           </ul>
         </div>
         <div class="passo-figura">
-          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata del tablet a riposo: sono le 12:05, la prossima medicina è il Sinemet alle 12:30, due dosi su quattordici sono già prese.">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata del tablet a riposo: sono le 12:05, la prossima medicina è il Sinemet alle 12:30, due dosi su sei sono già prese.">
             <div class="vista t" aria-hidden="true">
               <div class="g-testa">
                 <span class="g-marchio"><svg><use href="#m-marchio"/></svg>pìnnuli</span>
                 <span class="g-orologio"><b>12:05</b><span>Domenica 9 novembre · mezzogiorno</span></span>
-                <span class="g-conto"><span><b>2 prese</b> su 14 oggi</span><span class="g-barra"><i></i></span></span>
+                <span class="g-conto"><span><b>2 prese</b> su 6 oggi</span><span class="g-barra"><i></i></span></span>
               </div>
               <div class="g-corpo">
                 <div class="g-prossima">
@@ -709,13 +705,13 @@ button.t-annulla { cursor: pointer; }
     <div class="griglia">
       <div class="due-tel">
         <figure>
-          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Oggi del familiare: 2 dosi prese su 14, un avviso rosso per il Sinemet delle 12:30 e l'elenco delle dosi.">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Oggi del familiare: 2 dosi prese su 6, un avviso rosso per il Sinemet delle 12:30 e l'elenco delle dosi.">
             <div class="vista f" aria-hidden="true">
               <div class="f-chi"><span class="f-pill"><i>M</i>Mamma</span><span class="f-live">in diretta</span></div>
               <div class="f-allerta"><svg><use href="#s-ritardo"/></svg><div><b>Sinemet delle 12:30 non ancora preso</b><span>da 22 minuti</span></div></div>
               <div class="f-anello">
-                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#E6DCCB" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#3E6B2F" stroke-width="12" stroke-dasharray="36 216" stroke-linecap="round" transform="rotate(-90 50 50)"/><text x="50" y="59" text-anchor="middle" font-size="26" font-weight="700" fill="#231F1A">2</text></svg>
-                <div><b>2 prese su 14</b><span>Domenica 9 novembre</span><span class="ieri">Ieri: 14 su 14</span></div>
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#E6DCCB" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#3E6B2F" stroke-width="12" stroke-dasharray="84 168" stroke-linecap="round" transform="rotate(-90 50 50)"/><text x="50" y="59" text-anchor="middle" font-size="26" font-weight="700" fill="#231F1A">2</text></svg>
+                <div><b>2 prese su 6</b><span>Domenica 9 novembre</span><span class="ieri">Ieri: 6 su 6</span></div>
               </div>
               <div class="f-lista">
                 <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Lactoflorene</span><span class="st">8:02</span></div>
