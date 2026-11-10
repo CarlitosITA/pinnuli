@@ -13,6 +13,7 @@ Tavole navigabili (canvas con Play): https://claude.ai/artifact/NabqkNZtSxy4SsVf
 | `Main` | Identità di marca | — |
 | `Palette` | Palette, tipografia, stati, misure di tocco | — |
 | `Tablet-Giorno` | P3 Giornata (riposo) | tutto in regola, prossima dose tra 25 minuti |
+| `Tablet-Giorno-DaConfermare` | P3 Giornata (riposo) | una dose da confermare (riquadro arancione 160 px che apre P9) |
 | `Tablet-Promemoria` | P4 Promemoria singolo | prima chiamata |
 | `Tablet-Presa` | P7 Conferma avvenuta | con «Annulla» 10 s |
 | `Tablet-Ritardo` | P9 Dose senza risposta | 22 minuti, caregiver avvisato |
@@ -22,16 +23,17 @@ Tavole navigabili (canvas con Play): https://claude.ai/artifact/NabqkNZtSxy4SsVf
 | `Phone-Farmaco` | C7/C8 Modifica farmaco e regola | antibiotico per 7 giorni |
 | `Phone-Avviso` | C14 Allerta aperta | cronologia ed azioni |
 | `Phone-Paziente` | P3 su telefono | — |
+| `Phone-Paziente-DaConfermare` | P3 su telefono | una dose da confermare (riquadro 128 px) |
 | `Phone-Paziente-Promemoria` | P4 su telefono | — |
 
-Non ancora disegnate (prossima iterazione): P1 Collegamento, P2 Buongiorno, P6 scelta nel gruppo, P8 motivi «Non la prendo», P10/P11 già presa / in anticipo, P13–P17, C1/C2 onboarding, C9–C13, C15–C18, sito W1–W5.
+Non ancora disegnate (prossima iterazione): P1 Collegamento, P2 Buongiorno, P6 scelta nel gruppo, P8 motivi «Non la prendo», P10 già presa, P11 conferma in anticipo (nel prototipo il riquadro «Prossima dose» porta direttamente alla conferma P7), P13–P17, C1/C2 onboarding, C9–C13, C15–C18, sito W1–W5.
 
 ## Decisioni di UX prese nei mockup
 
 1. **Nessuna finestra «Sei sicuro?»** sulle azioni frequenti: dopo «L'HO PRESA» appare la conferma verde con «Ho sbagliato, annulla» per 10 secondi, poi si torna da soli alla giornata.
-2. **Posizioni fisse**: l'ora sempre in alto; il tasto verde sempre a destra (tablet) o in basso (telefono); «Annulla» è messo in basso a sinistra, lontano dal punto in cui era il tasto verde, per non essere colpito da un secondo tocco involontario.
+2. **Posizioni fisse**: l'ora sempre in alto; il tasto verde sempre a destra (tablet) o in basso (telefono); «Annulla» è messo in basso a sinistra, lontano dal punto in cui era il tasto verde, per non essere colpito da un secondo tocco involontario (decisione D17).
 3. **Il promemoria occupa tutto lo schermo** con il colore del marchio (terracotta); il ritardo usa Rubino; la conferma usa Ulivo. Lo sfondo intero dice lo stato anche da lontano.
-4. **Lista della giornata non toccabile sul tablet** (solo lettura) per evitare tocchi accidentali; le righe sono 76 px, sotto i 96 px indicati in `docs/05` § 5.2 perché non sono bersagli. Se in sviluppo diventano toccabili, portarle a 96 px.
+4. **Lista della giornata non toccabile sul tablet** (solo lettura, righe 76 px): decisione D16 della specifica. Nella schermata di riposo si toccano solo due riquadri: **«Prossima dose»** (apre la conferma in anticipo, P11) e, solo quando c'è una dose mancata, **«Da confermare»** sopra di esso (160 px sul tablet, 128 sul telefono, apre P9).
 5. **Tasto primario sul tablet**: ~430 px di altezza su 800 (oltre 1/3); tasti secondari 120 px; «Non la prendo» è discreto (bordo attenuato) e, come da specifica, richiederà conferma esplicita.
 6. **Disegni dei farmaci** invece di foto nei mockup: forma + colore coerenti (rotonda gialla, capsula, bustina, ovale). La foto reale, quando c'è, prende il posto del disegno.
 7. **Barra del caregiver a 4 voci**: Oggi, Terapia, Storico, Altro.
