@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pìnnuli ricorda le medicine con un promemoria a tutto schermo e un tasto enorme, pensato per chi ha il tremore o vede poco. I familiari seguono tutto dal telefono. Gratis per chi ne ha bisogno.">
+<meta property="og:title" content="Pìnnuli · Le tue compresse, all'ora giusta">
+<meta property="og:description" content="Nato per aiutare una mamma, gratis per chi ne ha bisogno.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pinnuli.it/">
+<meta name="theme-color" content="#A63F19">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!--PAGE-->
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Pìnnuli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Young+Serif&display=swap">
+<style>
+/* Concetto: la pagina racconta una giornata. Gli orari delle dosi fanno da filo, gli schermi dell'app sono le illustrazioni. */
+:root {
+  --calce: #FBF7F0; --sabbia: #F1E7D6; --lino: #E6DCCB; --carta: #FFFFFF;
+  --testo: #231F1A; --testo-2: #6B625A;
+  --terracotta: #A63F19; --terracotta-tinta: #F6E3DA; --su-terracotta: #FFFFFF;
+  --ulivo: #3E6B2F; --ulivo-tinta: #E3EDD9; --mare: #1D5C8A; --rubino: #A3182E;
+  --banda: #A63F19; --su-banda: #FFFFFF; --ombra: rgba(35, 31, 26, .22);
+  --display: 'Young Serif', Georgia, 'Times New Roman', serif;
+  --ui: 'Atkinson Hyperlegible', system-ui, 'Segoe UI', Arial, sans-serif;
+  /* colori degli schermi dell'app: sono immagini del prodotto, non cambiano col tema */
+  --m-calce: #FBF7F0; --m-lino: #E6DCCB; --m-sabbia: #F1E7D6; --m-carrubo: #231F1A; --m-pietra: #6B625A;
+  --m-terra: #A63F19; --m-ulivo: #3E6B2F; --m-rubino: #A3182E; --m-bianco: #FFFFFF;
+  --m-notte: #16130F; --m-notte-2: #231F1A; --m-notte-testo: #F3EBDD; --m-notte-acc: #E0744A; --m-giallo: #F2D36B; --m-giallo-b: #B89A2E;
+  --m-scocca: #1B1815;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --calce: #16130F; --sabbia: #231F1A; --lino: #3A332B; --carta: #231F1A;
+    --testo: #F3EBDD; --testo-2: #B8AA98;
+    --terracotta: #E0744A; --terracotta-tinta: #3A231A; --su-terracotta: #16130F;
+    --ulivo: #8FBF6A; --ulivo-tinta: #263320; --mare: #7FB6DE; --rubino: #F08A98;
+    --banda: #8A3415; --su-banda: #FFFFFF; --ombra: rgba(0, 0, 0, .5); --m-scocca: #000000;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --calce: #16130F; --sabbia: #231F1A; --lino: #3A332B; --carta: #231F1A;
+  --testo: #F3EBDD; --testo-2: #B8AA98;
+  --terracotta: #E0744A; --terracotta-tinta: #3A231A; --su-terracotta: #16130F;
+  --ulivo: #8FBF6A; --ulivo-tinta: #263320; --mare: #7FB6DE; --rubino: #F08A98;
+  --banda: #8A3415; --su-banda: #FFFFFF; --ombra: rgba(0, 0, 0, .5); --m-scocca: #000000;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img, svg { max-width: 100%; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--calce); color: var(--testo); font-family: var(--ui); font-size: 1.125rem; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p, ol, ul, dl, dd, figure, blockquote { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--mare); outline-offset: 3px; border-radius: 6px; }
+h1, h2 { font-family: var(--display); font-weight: 400; line-height: 1.08; letter-spacing: -.01em; text-wrap: balance; }
+h3 { font-size: 1.3rem; line-height: 1.25; text-wrap: balance; }
+
+.w { max-width: 72rem; margin-inline: auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.sez { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
+.occhiello { font-size: .95rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--terracotta); }
+.testa-sez { display: grid; gap: 1rem; max-width: 44rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+.testa-sez h2 { font-size: clamp(2.1rem, 5vw, 3.4rem); }
+.testa-sez p { color: var(--testo-2); font-size: 1.2rem; max-width: 38rem; }
+
+.tasto { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 3.5rem; padding: .7rem 1.5rem; border-radius: 1rem; border: 2px solid var(--terracotta); background: var(--terracotta); color: var(--su-terracotta); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; transition: transform .15s ease; }
+.tasto:hover { transform: translateY(-2px); }
+.tasto.vuoto { background: transparent; color: var(--testo); border-color: var(--testo); }
+
+/* ───── barra in alto ───── */
+.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--calce) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--lino); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--calce); }
+.barra .w { display: flex; align-items: center; gap: 1rem; min-height: 4.25rem; }
+.marchio { display: inline-flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.6rem; letter-spacing: -.03em; text-decoration: none; margin-right: auto; }
+.marchio svg { width: 2.2rem; height: 2.2rem; flex: none; }
+.barra nav { display: flex; gap: 1.5rem; font-size: 1rem; }
+.barra nav a { text-decoration: none; color: var(--testo-2); padding-block: .5rem; }
+.barra nav a:hover { color: var(--testo); }
+.barra .tasto { min-height: 2.75rem; padding: .35rem 1rem; font-size: 1rem; }
+@media (max-width: 860px) { .barra nav { display: none; } }
+
+/* ───── apertura ───── */
+.apertura .w { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 7vw, 6rem); }
+.apertura h1 { font-size: clamp(2.7rem, 6.2vw, 4.9rem); }
+.apertura h1 em { font-style: normal; color: var(--terracotta); }
+.apertura .sotto { font-size: 1.3rem; color: var(--testo-2); max-width: 30rem; }
+.apertura .colonna { display: grid; gap: 1.5rem; justify-items: start; }
+.azioni { display: flex; flex-wrap: wrap; gap: .75rem; }
+.nota-gratis { display: flex; align-items: center; gap: .6rem; font-size: 1rem; color: var(--testo-2); }
+.nota-gratis svg { flex: none; width: 1.4rem; height: 1.4rem; }
+.scena { position: relative; min-width: 0; padding-bottom: 22%; }
+.scena .telefono { position: absolute; right: 3%; bottom: 0; width: 24%; }
+.prova { display: flex; align-items: center; gap: .5rem; margin-top: 1rem; font-size: 1rem; color: var(--testo-2); max-width: 70%; }
+.prova svg { flex: none; width: 1.3rem; height: 1.3rem; }
+@media (max-width: 900px) { .apertura .w { grid-template-columns: minmax(0, 1fr); } .prova { max-width: 64%; } }
+
+/* ───── dispositivi ───── */
+.tablet { background: var(--m-scocca); padding: 1.6%; border-radius: 3.2% / 5%; box-shadow: 0 1.5rem 3.5rem var(--ombra); }
+.telefono { background: var(--m-scocca); padding: 3%; border-radius: 13% / 6.4%; box-shadow: 0 1.2rem 2.5rem var(--ombra); }
+.schermo { container-type: inline-size; position: relative; overflow: hidden; font-family: var(--ui); line-height: 1.2; color: var(--m-carrubo); background: var(--m-calce); }
+.tablet .schermo { aspect-ratio: 16 / 10; border-radius: 2% / 3.2%; }
+.telefono .schermo { aspect-ratio: 39 / 80; border-radius: 10.5% / 5.1%; }
+.schermo svg { display: block; flex: none; }
+.vista { position: absolute; inset: 0; display: flex; flex-direction: column; }
+
+/* tablet: 1cqw = 1% della larghezza dello schermo */
+.t { padding: 2.6cqw 3.6cqw 2.8cqw; gap: 1.8cqw; }
+.t-testa { display: flex; align-items: center; justify-content: space-between; gap: 2cqw; }
+.t-etich { display: flex; align-items: center; gap: 1.2cqw; font-size: 2.3cqw; font-weight: 700; letter-spacing: .04em; }
+.t-etich svg { width: 3.6cqw; height: 3.6cqw; }
+.t-ora { font-size: 3.5cqw; font-weight: 700; }
+.t-corpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; }
+.t-scheda { background: var(--m-bianco); color: var(--m-carrubo); border-radius: 2.5cqw; padding: 2.6cqw 3cqw; display: flex; flex-direction: column; justify-content: center; gap: 1.6cqw; min-width: 0; }
+.t-farmaco { display: flex; align-items: center; gap: 2.2cqw; }
+.t-farmaco svg { width: 11cqw; height: 11cqw; }
+.t-nome { font-size: 5.9cqw; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.t-quanto { font-size: 2.6cqw; font-weight: 700; color: var(--m-terra); margin-top: .7cqw; }
+.t-istr { font-size: 2.3cqw; line-height: 1.3; }
+.t-tasti { display: flex; flex-direction: column; gap: 1.8cqw; min-width: 0; }
+.t-presa { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqw; background: var(--m-ulivo); color: var(--m-bianco); border: .5cqw solid var(--m-bianco); border-radius: 2.5cqw; font: inherit; padding: 0; }
+button.t-presa { cursor: pointer; animation: pulsa 2.4s ease-in-out infinite; }
+.t-presa svg { width: 7.5cqw; height: 7.5cqw; }
+.t-presa b { font-size: 4.4cqw; letter-spacing: .02em; line-height: 1; }
+.t-presa small { font-size: 1.9cqw; opacity: .92; }
+.t-due { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.8cqw; }
+.t-sec { height: 9.4cqw; display: flex; align-items: center; justify-content: center; gap: 1cqw; border: .25cqw solid var(--m-bianco); border-radius: 1.9cqw; font-size: 2.2cqw; font-weight: 700; text-align: center; }
+.t-sec svg { width: 2.8cqw; height: 2.8cqw; }
+.t-sec.piano { border-color: rgba(255, 255, 255, .6); }
+.t-piede { display: flex; justify-content: space-between; gap: 2cqw; font-size: 1.7cqw; opacity: .92; }
+.t-promemoria { background: var(--m-terra); color: var(--m-bianco); }
+.t-ritardo { background: var(--m-rubino); color: var(--m-bianco); }
+.t-ritardo .t-quanto { color: var(--m-rubino); }
+.t-fatto { background: var(--m-ulivo); color: var(--m-bianco); align-items: center; justify-content: center; text-align: center; gap: 1.4cqw; }
+.t-fatto svg { width: 15cqw; height: 15cqw; }
+.t-fatto b { font-size: 8cqw; line-height: 1; }
+.t-fatto span { font-size: 3cqw; }
+.t-annulla { position: absolute; left: 3.6cqw; bottom: 2.8cqw; height: 8cqw; padding: 0 2.6cqw; display: flex; align-items: center; border: .25cqw solid var(--m-bianco); border-radius: 1.9cqw; font-size: 2.2cqw; font-weight: 700; background: transparent; color: inherit; font-family: inherit; }
+button.t-annulla { cursor: pointer; }
+.t-conto { position: absolute; right: 3.6cqw; bottom: 3.6cqw; font-size: 1.9cqw; opacity: .92; }
+@keyframes pulsa { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+
+/* tablet: la giornata */
+.g-testa { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.g-marchio { display: flex; align-items: center; gap: 1cqw; font-size: 2.4cqw; font-weight: 700; letter-spacing: -.03em; }
+.g-marchio svg { width: 3.4cqw; height: 3.4cqw; }
+.g-orologio { text-align: center; }
+.g-orologio b { display: block; font-size: 9.4cqw; line-height: 1; letter-spacing: -.02em; }
+.g-orologio span { font-size: 2.1cqw; color: var(--m-pietra); }
+.g-conto { justify-self: end; text-align: right; font-size: 2.1cqw; display: grid; gap: .7cqw; justify-items: end; }
+.g-barra { width: 18cqw; height: 1.1cqw; border-radius: 9cqw; background: var(--m-lino); overflow: hidden; }
+.g-barra i { display: block; height: 100%; width: 14%; background: var(--m-ulivo); border-radius: 9cqw; }
+.g-corpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.25fr 1fr; gap: 2.2cqw; }
+.g-prossima { background: var(--m-bianco); border: .25cqw solid var(--m-terra); border-radius: 2.2cqw; padding: 2.2cqw 2.8cqw; display: flex; flex-direction: column; gap: 1cqw; }
+.g-prossima .eti { font-size: 1.7cqw; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--m-terra); }
+.g-prossima .t-farmaco svg { width: 9cqw; height: 9cqw; }
+.g-prossima .t-nome { font-size: 5cqw; }
+.g-prossima .dose { font-size: 2.3cqw; margin-top: .5cqw; }
+.g-quando { display: flex; align-items: baseline; gap: 1.2cqw; }
+.g-quando b { font-size: 4.4cqw; color: var(--m-terra); line-height: 1; }
+.g-quando span { font-size: 2.3cqw; color: var(--m-pietra); }
+.g-calma { font-size: 2.1cqw; line-height: 1.3; margin-top: auto; }
+.g-lista { background: var(--m-bianco); border: .16cqw solid var(--m-lino); border-radius: 2.2cqw; padding: 1.6cqw 2cqw; display: flex; flex-direction: column; gap: .2cqw; min-height: 0; }
+.g-lista h4 { margin: 0 0 .6cqw; font-size: 2.1cqw; color: var(--m-pietra); }
+.g-riga { display: flex; align-items: center; gap: 1.2cqw; height: 5.5cqw; font-size: 2.1cqw; }
+.g-riga svg { width: 2.8cqw; height: 2.8cqw; }
+.g-riga time { width: 6.5cqw; font-weight: 700; color: var(--m-pietra); }
+.g-riga .st { margin-left: auto; font-size: 1.7cqw; font-weight: 700; }
+.g-riga.ok span:not(.st) { color: var(--m-pietra); text-decoration: line-through; }
+.g-riga.ok .st { color: var(--m-ulivo); }
+.g-riga.ora { background: #F6E3DA; border-radius: 1.1cqw; padding: 0 1cqw; margin: 0 -1cqw; font-weight: 700; }
+.g-riga.ora .st, .g-riga.ora time { color: var(--m-terra); }
+.g-riga.poi { color: var(--m-pietra); }
+
+/* tablet: domanda dopo una conferma tardiva */
+.t-domanda { background: var(--m-calce); align-items: stretch; }
+.t-domanda h4 { margin: 0; font-size: 4.6cqw; line-height: 1.1; text-align: center; }
+.t-domanda p { font-size: 2.3cqw; color: var(--m-pietra); text-align: center; }
+.t-scelte { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.4cqw; }
+.t-scelta { border-radius: 2.5cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2cqw; text-align: center; padding: 2cqw; }
+.t-scelta b { font-size: 3.7cqw; line-height: 1.1; }
+.t-scelta span { font-size: 2.3cqw; }
+.t-scelta svg { width: 7cqw; height: 7cqw; }
+.t-scelta.a { background: var(--m-ulivo); color: var(--m-bianco); }
+.t-scelta.b { background: var(--m-bianco); border: .3cqw solid var(--m-carrubo); }
+
+/* tablet: notte */
+.t-notte { background: var(--m-notte); color: var(--m-notte-testo); }
+.t-notte .g-orologio span, .t-notte .g-riga time { color: #B8AA98; }
+.n-corpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.4cqw; align-items: stretch; }
+.n-scheda { background: var(--m-notte-2); border-radius: 2.2cqw; padding: 2.2cqw 2.6cqw; display: flex; flex-direction: column; gap: 1.4cqw; justify-content: center; }
+.n-scheda .eti { font-size: 1.7cqw; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--m-notte-acc); }
+.n-med { display: flex; align-items: center; gap: 1.6cqw; font-size: 3.3cqw; font-weight: 700; }
+.n-med svg { width: 6cqw; height: 6cqw; }
+.n-med small { display: block; font-size: 1.9cqw; font-weight: 400; color: #B8AA98; }
+.n-tasto { background: #8FBF6A; color: var(--m-notte); border-radius: 2.5cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1cqw; text-align: center; }
+.n-tasto b { font-size: 4.2cqw; line-height: 1.05; }
+.n-tasto svg { width: 7cqw; height: 7cqw; }
+
+/* telefono: 1cqw = 1% della larghezza */
+.f { padding: 13cqw 5cqw 5cqw; gap: 3.6cqw; }
+.f-chi { display: flex; align-items: center; justify-content: space-between; }
+.f-pill { display: flex; align-items: center; gap: 2.4cqw; padding: 1.6cqw 4cqw 1.6cqw 1.8cqw; border: .5cqw solid var(--m-lino); border-radius: 99cqw; background: var(--m-bianco); font-size: 5cqw; font-weight: 700; }
+.f-pill i { width: 8.6cqw; height: 8.6cqw; border-radius: 50%; background: var(--m-sabbia); color: var(--m-terra); font-style: normal; font-size: 4.2cqw; display: grid; place-items: center; }
+.f-live { font-size: 3.6cqw; color: var(--m-ulivo); font-weight: 700; display: flex; align-items: center; gap: 1.4cqw; }
+.f-live::before { content: ""; width: 2.2cqw; height: 2.2cqw; border-radius: 50%; background: var(--m-ulivo); }
+.f-allerta { display: flex; align-items: center; gap: 3cqw; background: var(--m-rubino); color: var(--m-bianco); border-radius: 4.4cqw; padding: 3.4cqw 3.8cqw; }
+.f-allerta svg { width: 9.5cqw; height: 9.5cqw; }
+.f-allerta b { display: block; font-size: 4.4cqw; line-height: 1.2; }
+.f-allerta span { font-size: 3.8cqw; opacity: .94; }
+.f-anello { display: flex; align-items: center; gap: 4cqw; background: var(--m-bianco); border: .5cqw solid var(--m-lino); border-radius: 5cqw; padding: 3.6cqw 4.2cqw; }
+.f-anello svg { width: 19cqw; height: 19cqw; }
+.f-anello b { display: block; font-size: 5.4cqw; }
+.f-anello span { display: block; font-size: 3.9cqw; color: var(--m-pietra); }
+.f-anello .ieri { color: var(--m-ulivo); font-weight: 700; }
+.f-lista { display: flex; flex-direction: column; gap: 1cqw; }
+.f-riga { display: flex; align-items: center; gap: 2.8cqw; min-height: 12.5cqw; padding: 0 2.4cqw; font-size: 4.4cqw; border-radius: 3.4cqw; }
+.f-riga svg { width: 7.4cqw; height: 7.4cqw; }
+.f-riga time { width: 12.5cqw; font-weight: 700; color: var(--m-pietra); }
+.f-riga .st { margin-left: auto; font-size: 3.6cqw; font-weight: 700; }
+.f-riga.ok .st { color: var(--m-ulivo); }
+.f-riga.rit { background: #F7E0E3; font-weight: 700; }
+.f-riga.rit .st, .f-riga.rit time { color: var(--m-rubino); }
+.f-riga.poi { color: var(--m-pietra); }
+.f-riga.ora { background: #F6E3DA; font-weight: 700; }
+.f-riga.ora .st, .f-riga.ora time { color: var(--m-terra); }
+.f-tasto { margin-top: auto; background: var(--m-ulivo); color: var(--m-bianco); border-radius: 4.4cqw; padding: 4cqw; text-align: center; font-size: 4.6cqw; font-weight: 700; }
+.f-tab { display: grid; grid-template-columns: repeat(4, 1fr); border-top: .4cqw solid var(--m-lino); margin: 0 -5cqw -5cqw; padding: 3cqw 2cqw 5cqw; background: var(--m-bianco); font-size: 3.3cqw; text-align: center; color: var(--m-pietra); }
+.f-tab b { color: var(--m-terra); }
+.f-titolo { font-size: 7cqw; font-weight: 700; }
+.f-var { background: #DCE9F3; color: #134467; border-radius: 4.4cqw; padding: 3.4cqw 3.8cqw; font-size: 3.9cqw; line-height: 1.3; }
+.f-var b { display: block; font-size: 4.3cqw; }
+.f-med { display: flex; align-items: center; gap: 3cqw; background: var(--m-bianco); border: .5cqw solid var(--m-lino); border-radius: 4.4cqw; padding: 3cqw 3.6cqw; }
+.f-med svg { width: 10cqw; height: 10cqw; }
+.f-med b { display: block; font-size: 4.6cqw; }
+.f-med span { display: block; font-size: 3.6cqw; color: var(--m-pietra); line-height: 1.3; }
+.f-med em { font-style: normal; margin-left: auto; font-size: 3.2cqw; font-weight: 700; padding: 1cqw 2.2cqw; border-radius: 99cqw; white-space: nowrap; }
+.f-med .gg { background: #DCE9F3; color: #134467; }
+.f-med .so { background: var(--m-sabbia); color: var(--m-pietra); }
+/* telefono: schermo bloccato con notifica */
+.f-blocco { background: linear-gradient(160deg, #3A2A22, #16130F); color: var(--m-bianco); padding: 16cqw 4cqw 5cqw; gap: 4cqw; align-items: stretch; }
+.f-blocco .ora { text-align: center; font-size: 22cqw; font-weight: 700; line-height: 1; }
+.f-blocco .data { text-align: center; font-size: 4.4cqw; opacity: .85; margin-top: -2cqw; }
+.f-notifica { background: rgba(251, 247, 240, .96); color: var(--m-carrubo); border-radius: 5cqw; padding: 3.6cqw; display: grid; gap: 2cqw; margin-top: 6cqw; }
+.f-notifica .da { display: flex; align-items: center; gap: 2cqw; font-size: 3.4cqw; color: var(--m-pietra); }
+.f-notifica .da svg { width: 5.4cqw; height: 5.4cqw; }
+.f-notifica b { font-size: 4.5cqw; line-height: 1.2; }
+.f-notifica p { font-size: 3.9cqw; line-height: 1.3; }
+.f-notifica .az { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: 1cqw; }
+.f-notifica .az span { border: .5cqw solid var(--m-lino); border-radius: 3cqw; padding: 2.4cqw 1cqw; text-align: center; font-size: 3.6cqw; font-weight: 700; }
+/* telefono della paziente: promemoria */
+.f-prom { background: var(--m-terra); color: var(--m-bianco); padding: 14cqw 5cqw 6cqw; gap: 4cqw; }
+.f-prom .su { display: flex; justify-content: space-between; align-items: center; font-size: 4.2cqw; font-weight: 700; letter-spacing: .04em; }
+.f-prom .su b { font-size: 8cqw; letter-spacing: 0; }
+.f-prom .sch { background: var(--m-bianco); color: var(--m-carrubo); border-radius: 6cqw; padding: 5cqw; display: grid; gap: 2.4cqw; justify-items: center; text-align: center; }
+.f-prom .sch svg { width: 26cqw; height: 26cqw; }
+.f-prom .sch b { font-size: 13cqw; line-height: 1; }
+.f-prom .sch span { font-size: 5.4cqw; font-weight: 700; color: var(--m-terra); }
+.f-prom .si { flex: 1; background: var(--m-ulivo); border: 1.2cqw solid var(--m-bianco); border-radius: 6cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2cqw; }
+.f-prom .si svg { width: 18cqw; height: 18cqw; }
+.f-prom .si b { font-size: 10cqw; line-height: 1; }
+.f-prom .poi { border: .7cqw solid var(--m-bianco); border-radius: 4.4cqw; padding: 4.4cqw; text-align: center; font-size: 5cqw; font-weight: 700; }
+
+/* nel telefono dell'apertura le righe sono più grandi: è piccolo e deve leggersi */
+.scena .f { gap: 5cqw; }
+.scena .f-pill { font-size: 8cqw; }
+.scena .f-live { font-size: 6.4cqw; }
+.scena .f-lista { gap: 2cqw; }
+.scena .f-riga { font-size: 8.5cqw; min-height: 22cqw; gap: 3.4cqw; }
+.scena .f-riga svg { width: 13cqw; height: 13cqw; }
+.scena .f-riga time { width: auto; }
+.scena .f-riga .st { font-size: 6.4cqw; }
+.scena .t-conto { display: none; }
+
+/* ───── il nome ───── */
+.nome { background: var(--sabbia); }
+.nome .w { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.voce { display: grid; gap: 1rem; }
+.voce .lemma { font-family: var(--display); font-size: clamp(3.6rem, 11vw, 8rem); line-height: .95; letter-spacing: -.02em; }
+.voce .lemma span { color: var(--terracotta); }
+.voce .pron { font-size: 1.15rem; color: var(--testo-2); }
+.voce .pron b { color: var(--testo); letter-spacing: .04em; }
+.voce dl { display: grid; gap: .6rem; border-top: 2px solid var(--testo); padding-top: 1rem; max-width: 34rem; }
+.voce dt { font-weight: 700; }
+.voce dd { color: var(--testo-2); }
+.scherzo { display: grid; gap: 1.25rem; }
+.scherzo blockquote { font-family: var(--display); font-size: clamp(1.7rem, 3.6vw, 2.5rem); line-height: 1.15; text-wrap: balance; }
+.scherzo .trad { color: var(--testo-2); font-size: 1.05rem; }
+.scherzo p { max-width: 32rem; }
+@media (max-width: 860px) { .nome .w { grid-template-columns: minmax(0, 1fr); } }
+
+/* ───── la storia ───── */
+.storia .w { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 5rem); }
+.storia h2 { font-size: clamp(2.1rem, 5vw, 3.4rem); }
+.storia .lato { display: grid; gap: 1rem; align-content: start; }
+.lettera { display: grid; gap: 1.2rem; font-size: 1.25rem; line-height: 1.6; max-width: 38rem; }
+.lettera .forte { font-family: var(--display); font-size: clamp(1.6rem, 3.2vw, 2.1rem); line-height: 1.2; color: var(--terracotta); text-wrap: balance; }
+.firma { display: flex; align-items: center; gap: 1rem; margin-top: .5rem; font-size: 1.05rem; }
+.firma i { width: 3.25rem; height: 3.25rem; border-radius: 50%; background: var(--terracotta); color: var(--su-terracotta); display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 1.3rem; flex: none; }
+.firma a { color: var(--terracotta); font-weight: 700; }
+.numeri { display: flex; flex-wrap: wrap; gap: 1.5rem 2.5rem; margin-top: 1rem; }
+.numeri div { display: grid; }
+.numeri b { font-family: var(--display); font-weight: 400; font-size: 2.6rem; line-height: 1; }
+.numeri span { color: var(--testo-2); font-size: 1rem; max-width: 11rem; }
+@media (max-width: 860px) { .storia .w { grid-template-columns: minmax(0, 1fr); } }
+
+/* ───── la giornata, passo per passo ───── */
+.giornata { background: var(--sabbia); }
+.passi { display: grid; gap: clamp(3rem, 7vw, 5.5rem); }
+.passo { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; }
+.passo:nth-child(even) .passo-testo { order: 2; }
+.passo-testo { display: grid; gap: .9rem; align-content: center; }
+.orario { display: inline-flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.05rem; color: var(--terracotta); font-variant-numeric: tabular-nums; }
+.orario b { font-family: var(--display); font-weight: 400; font-size: 2.4rem; line-height: 1; }
+.passo h3 { font-family: var(--display); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.12; }
+.passo p { color: var(--testo-2); max-width: 30rem; }
+.punti { display: grid; gap: .5rem; margin-top: .3rem; }
+.punti li { display: flex; gap: .7rem; align-items: flex-start; }
+.punti svg { flex: none; width: 1.4rem; height: 1.4rem; margin-top: .2rem; }
+.passo-figura { min-width: 0; position: relative; }
+.passo-figura.coppia { padding-bottom: 8%; }
+.passo-figura.coppia .telefono { position: absolute; right: 3%; bottom: 0; width: 30%; }
+.passo-figura.solo-tel { display: flex; justify-content: center; }
+.passo-figura.solo-tel .telefono { width: min(17rem, 70%); }
+@media (max-width: 860px) { .passo { grid-template-columns: minmax(0, 1fr); } .passo:nth-child(even) .passo-testo { order: 0; } }
+
+/* ───── per chi segue ───── */
+.familiare .w > .griglia { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.due-tel { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 3vw, 2rem); align-items: start; max-width: 34rem; }
+.due-tel figure { display: grid; gap: .8rem; }
+.due-tel figcaption { font-size: 1rem; color: var(--testo-2); text-align: center; }
+.due-tel figure:last-child { margin-top: 12%; }
+.cose { display: grid; gap: 1.6rem; }
+.cose li { display: grid; grid-template-columns: 2.75rem minmax(0, 1fr); gap: 1rem; }
+.cose svg { width: 2.75rem; height: 2.75rem; }
+.cose p { color: var(--testo-2); }
+@media (max-width: 860px) { .familiare .w > .griglia { grid-template-columns: minmax(0, 1fr); } .due-tel { margin-inline: auto; } }
+
+/* ───── mani che tremano ───── */
+.mani { background: var(--sabbia); }
+.misure { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--testo); }
+.misure li { padding: 1.6rem 1.5rem 1.8rem 0; border-bottom: 1px solid var(--lino); display: grid; gap: .5rem; align-content: start; }
+.misure b.cifra { font-family: var(--display); font-weight: 400; font-size: 2.8rem; line-height: 1; color: var(--terracotta); }
+.misure p { color: var(--testo-2); font-size: 1.05rem; }
+@media (max-width: 860px) { .misure { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .misure { grid-template-columns: minmax(0, 1fr); } }
+
+/* ───── gratis ───── */
+.gratis { background: var(--banda); color: var(--su-banda); }
+.gratis .w { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.gratis h2 { font-size: clamp(2.4rem, 6vw, 4.2rem); }
+.gratis .colonna { display: grid; gap: 1.4rem; justify-items: start; }
+.gratis .colonna p { font-size: 1.25rem; max-width: 32rem; }
+.gratis .tasto { background: #FFFFFF; color: #7C2D10; border-color: #FFFFFF; font-size: 1.25rem; min-height: 4.25rem; padding-inline: 2rem; }
+.gratis .occhiello { color: inherit; opacity: .9; }
+.come { display: grid; gap: 0; border-top: 2px solid rgba(255, 255, 255, .7); }
+.come li { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; padding-block: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, .35); }
+.come .n { font-family: var(--display); font-size: 2rem; line-height: 1; }
+.come p { opacity: .92; font-size: 1.05rem; }
+@media (max-width: 860px) { .gratis .w { grid-template-columns: minmax(0, 1fr); } }
+
+/* ───── piede ───── */
+.piede { padding-block: 2.5rem 3rem; font-size: 1rem; color: var(--testo-2); }
+.piede .w { display: grid; gap: 1.5rem; }
+.piede .riga { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between; }
+.piede a { color: var(--testo); font-weight: 700; }
+.piede .avviso { max-width: 48rem; border-top: 1px solid var(--lino); padding-top: 1.5rem; }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } button.t-presa { animation: none; } .tasto { transition: none; } }
+</style>
+<!--/HEAD-->
+</head>
+<body>
+<!--BODY-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-marchio" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="var(--terracotta)"/><path d="M29 52 L44 67 L72 37" fill="none" stroke="var(--calce)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-marchio" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#A63F19"/><path d="M29 52 L44 67 L72 37" fill="none" stroke="#FBF7F0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-campana" viewBox="0 0 48 48"><path d="M24 6a12 12 0 0 1 12 12v10l4 6H8l4-6V18A12 12 0 0 1 24 6z" fill="currentColor"/><path d="M19 38a5 5 0 0 0 10 0" fill="currentColor"/></symbol>
+    <symbol id="m-spunta" viewBox="0 0 48 48"><path d="M10 25 L20 35 L38 13" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-orologio" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="4"/><path d="M24 13V24l7 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-compressa" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="#F2D36B" stroke="#B89A2E" stroke-width="4"/><path d="M20 60H100" stroke="#B89A2E" stroke-width="4" stroke-linecap="round"/></symbol>
+    <symbol id="m-capsula" viewBox="0 0 120 120"><rect x="14" y="38" width="92" height="44" rx="22" fill="#FBF7F0" stroke="#6B625A" stroke-width="4"/><path d="M60 38h24a22 22 0 0 1 0 44H60z" fill="#C8553A" stroke="#6B625A" stroke-width="4"/></symbol>
+    <symbol id="m-bustina" viewBox="0 0 120 120"><rect x="26" y="14" width="68" height="92" rx="8" fill="#DCE9F3" stroke="#1D5C8A" stroke-width="4"/><path d="M26 30H94" stroke="#1D5C8A" stroke-width="4" stroke-dasharray="6 6"/></symbol>
+    <symbol id="s-presa" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#3E6B2F"/><path d="M14 25l7 7 13-15" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="s-adesso" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="#A63F19" stroke-width="4"/><path d="M24 13V24l7 5" fill="none" stroke="#A63F19" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="s-ritardo" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#A3182E"/><path d="M24 12V27" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/><circle cx="24" cy="35" r="3.5" fill="#FFFFFF"/></symbol>
+    <symbol id="s-poi" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="#6B625A" stroke-width="3.5" stroke-dasharray="6 6"/></symbol>
+    <symbol id="i-si" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--ulivo)"/><path d="M7 12.5l3.4 3.4L17 8.6" fill="none" stroke="var(--calce)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-dito" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v6l4.5 1.2A2 2 0 0 1 19 14.2l-.7 4.3A3 3 0 0 1 15.300 21H11a3 3 0 0 1-2.4-1.200L5 15l1.300-1.200a1.500 1.500 0 0 1 2 0z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="barra">
+  <div class="w">
+    <a class="marchio" href="#inizio" aria-label="Pìnnuli, torna all'inizio"><svg aria-hidden="true"><use href="#i-marchio"/></svg>pìnnuli</a>
+    <nav aria-label="Sezioni">
+      <a href="#nome">Il nome</a>
+      <a href="#storia">La storia</a>
+      <a href="#giornata">Come funziona</a>
+      <a href="#familiare">Per i familiari</a>
+    </nav>
+    <a class="tasto" href="#gratis">Chiedila gratis</a>
+  </div>
+</header>
+
+<main id="inizio">
+
+<section class="apertura">
+  <div class="w">
+    <div class="colonna">
+      <p class="occhiello">Pìnnuli · «compresse», in salentino</p>
+      <h1>Le tue compresse, <em>all'ora giusta.</em></h1>
+      <p class="sotto">Uno schermo in cucina che dice a tua madre che cosa prendere adesso. E dice a te, sul telefono, che l'ha presa.</p>
+      <div class="azioni">
+        <a class="tasto" href="#gratis">Chiedila gratis</a>
+        <a class="tasto vuoto" href="#giornata">Guarda come funziona</a>
+      </div>
+      <p class="nota-gratis"><svg aria-hidden="true"><use href="#i-si"/></svg>È nato per mia madre. Lo regalo a chi ne ha bisogno.</p>
+    </div>
+
+    <div class="scena">
+      <div class="tablet">
+        <div class="schermo" id="demo" data-stato="promemoria">
+          <div class="vista t t-promemoria" data-vista="promemoria">
+            <div class="t-testa">
+              <span class="t-etich"><svg aria-hidden="true"><use href="#m-campana"/></svg>È L'ORA DELLA MEDICINA</span>
+              <span class="t-ora">12:30</span>
+            </div>
+            <div class="t-corpo">
+              <div class="t-scheda">
+                <div class="t-farmaco">
+                  <svg role="img" aria-label="Compressa gialla rotonda"><use href="#m-compressa"/></svg>
+                  <div><div class="t-nome">Sinemet</div><div class="t-quanto">1 compressa intera</div></div>
+                </div>
+                <p class="t-istr">Con un bicchiere d'acqua.<br>La prossima medicina è alle <b>12:45</b>.</p>
+              </div>
+              <div class="t-tasti">
+                <button type="button" class="t-presa" id="demo-presa">
+                  <svg aria-hidden="true"><use href="#m-spunta"/></svg>
+                  <b>L'HO PRESA</b>
+                  <small>tocca qui dopo averla presa</small>
+                </button>
+                <div class="t-due">
+                  <span class="t-sec"><svg aria-hidden="true"><use href="#m-orologio"/></svg>Tra 10 minuti</span>
+                  <span class="t-sec piano">Non la prendo</span>
+                </div>
+              </div>
+            </div>
+            <div class="t-piede"><span>Il suono si ripete finché non rispondi.</span><span>Se non rispondi, avviso Giovanni.</span></div>
+          </div>
+          <div class="vista t t-fatto" data-vista="fatto" hidden>
+            <svg aria-hidden="true"><use href="#m-spunta"/></svg>
+            <b>Fatto. Brava!</b>
+            <span>Sinemet, presa alle 12:30</span>
+            <button type="button" class="t-annulla" id="demo-annulla">Ho sbagliato, annulla</button>
+            <span class="t-conto">Torno alla giornata tra poco</span>
+          </div>
+        </div>
+      </div>
+      <p class="prova"><svg aria-hidden="true"><use href="#i-dito"/></svg><span id="demo-aiuto">Prova: tocca il tasto verde sul tablet.</span></p>
+      <div class="telefono">
+        <div class="schermo" role="img" aria-label="Il telefono del familiare mostra la giornata di Mamma in diretta.">
+          <div class="vista f" aria-hidden="true">
+            <div class="f-chi"><span class="f-pill"><i>M</i>Mamma</span></div>
+            <span class="f-live">in diretta</span>
+            <div class="f-lista">
+              <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span class="st">Presa</span></div>
+              <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span class="st">Presa</span></div>
+              <div class="f-riga ora" id="demo-riga"><svg><use id="demo-icona" href="#s-adesso"/></svg><time>12:30</time><span class="st" id="demo-stato">Adesso</span></div>
+              <div class="f-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sez nome" id="nome">
+  <div class="w">
+    <div class="voce">
+      <p class="occhiello">Prima di tutto, il nome</p>
+      <p class="lemma" lang="it-x-salentino">p<span>ì</span>nnuli</p>
+      <p class="pron">Si legge <b>PÌN‑nu‑li</b>, con l'accento sulla prima i. Se dici «pinnùli», in Salento se ne accorgono.</p>
+      <dl>
+        <div><dt>sostantivo maschile plurale, dialetto salentino</dt><dd>Compresse, pillole. Al singolare: <i lang="it-x-salentino">pìnnulu</i>.</dd></div>
+        <div><dt>per estensione</dt><dd>Tutto quello che il dottore ha scritto sul foglio e che qualcuno, prima o poi, ti chiederà se hai preso.</dd></div>
+      </dl>
+    </div>
+    <div class="scherzo">
+      <blockquote lang="it-x-salentino">«Te li pijasti li pìnnuli?»</blockquote>
+      <p class="trad">Traduzione: «Le hai prese, le compresse?»</p>
+      <p>In Salento questa domanda si grida dalla cucina, più o meno da sempre. Di solito è una mamma che la fa a un figlio. A un certo punto della vita le parti si invertono, e tocca al figlio farla alla mamma.</p>
+      <p>Lo scherzo è tutto qui: ho preso la parola meno tecnologica che conosco e l'ho data a un software. Perché Pìnnuli fa esattamente quella domanda, tutti i giorni, all'ora giusta. Solo con più pazienza di me.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sez storia" id="storia">
+  <div class="w">
+    <div class="lato">
+      <p class="occhiello">La storia</p>
+      <h2>L'ho fatto per mia madre.</h2>
+      <div class="numeri">
+        <div><b>14</b><span>compresse al giorno, la terapia da cui è partito tutto</span></div>
+        <div><b>1</b><span>tasto solo, grande quanto mezza schermata</span></div>
+      </div>
+    </div>
+    <div class="lettera">
+      <p>Mia madre prende quattordici compresse al giorno. Una a digiuno, una un quarto d'ora prima di pranzo, una a metà, una solo per sette giorni. Le mani le tremano, e gli orari contano: alcune medicine, se arrivano tardi, si fanno sentire.</p>
+      <p>La domanda che si fa più spesso non è «che cosa devo prendere?». È un'altra, ed è la più pericolosa:</p>
+      <p class="forte">«L'ho già presa?»</p>
+      <p>Chi non se lo ricorda rischia di saltare una dose o di prenderla due volte. E io, che non posso stare in cucina con lei a ogni ora, lo scoprivo solo telefonando.</p>
+      <p>Sveglie, foglietti sul frigo e scatole con i giorni a quella domanda non rispondono. Così ho fatto quello che so fare, e ho costruito Pìnnuli: uno schermo che le dice una cosa alla volta, un tasto che non si può sbagliare, e un avviso a me solo quando serve.</p>
+      <p>Mia madre è la prima paziente. Ma di mamme, papà e nonni così ce ne sono in ogni casa. Per questo non lo vendo: <strong>se ne hai bisogno, scrivimi e te lo attivo gratis.</strong></p>
+      <div class="firma"><i aria-hidden="true">G</i><span>Giovanni Parato<br><a href="https://para.to" rel="noopener">para.to</a></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sez giornata" id="giornata">
+  <div class="w">
+    <div class="testa-sez">
+      <p class="occhiello">Come funziona</p>
+      <h2>Una giornata con Pìnnuli, ora per ora.</h2>
+      <p>Chi prende le medicine non deve imparare niente. Non si naviga, non si scrive, non si cerca. Si guarda e si tocca un tasto.</p>
+    </div>
+
+    <ol class="passi">
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>12:05</b> a riposo</span>
+          <h3>Sul muro c'è sempre la risposta.</h3>
+          <p>L'ora in grande, la prossima medicina, e tutta la giornata con quello che è già stato preso. «L'ho già presa?» si legge sullo schermo, con l'orario esatto.</p>
+          <ul class="punti">
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Ogni dose ha colore, icona e parola: presa, adesso, più tardi.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>«Ti avviso io quando è ora. Non devi fare niente adesso.»</span></li>
+          </ul>
+        </div>
+        <div class="passo-figura">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata del tablet a riposo: sono le 12:05, la prossima medicina è il Sinemet alle 12:30, due dosi su quattordici sono già prese.">
+            <div class="vista t" aria-hidden="true">
+              <div class="g-testa">
+                <span class="g-marchio"><svg><use href="#m-marchio"/></svg>pìnnuli</span>
+                <span class="g-orologio"><b>12:05</b><span>Domenica 9 novembre · mezzogiorno</span></span>
+                <span class="g-conto"><span><b>2 prese</b> su 14 oggi</span><span class="g-barra"><i></i></span></span>
+              </div>
+              <div class="g-corpo">
+                <div class="g-prossima">
+                  <span class="eti">Prossima medicina</span>
+                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Sinemet</div><div class="dose">1 compressa intera</div></div></div>
+                  <div class="g-quando"><b>alle 12:30</b><span>tra 25 minuti</span></div>
+                  <span class="g-calma">Ti avviso io quando è ora. Non devi fare niente adesso.</span>
+                </div>
+                <div class="g-lista">
+                  <h4>La tua giornata</h4>
+                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Lactoflorene</span><span class="st">Presa 8:02</span></div>
+                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Sinemet</span><span class="st">Presa 8:31</span></div>
+                  <div class="g-riga ora"><svg><use href="#s-adesso"/></svg><time>12:30</time><span>Sinemet</span><span class="st">Prossima</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Peridon</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>13:45</time><span>Neo Furadantin</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>14:00</time><span>Cardioaspirina</span></div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </li>
+
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>12:30</b> è ora</span>
+          <h3>Suona, parla e si accende a tutto schermo.</h3>
+          <p>«Sono le dodici e mezza. È l'ora del Sinemet: una compressa.» Lo dice a voce e lo scrive enorme, con il disegno della medicina. Va avanti finché qualcuno risponde.</p>
+          <ul class="punti">
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Funziona uguale sul telefono, con la notifica anche a schermo spento.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Tablet e telefono restano allineati: confermi su uno, tace anche l'altro.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>«Tra 10 minuti» se adesso non può. «Non la prendo» se oggi non va presa.</span></li>
+          </ul>
+        </div>
+        <div class="passo-figura solo-tel">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Promemoria sul telefono della paziente: è l'ora del Sinemet, una compressa intera, con un grande tasto verde L'HO PRESA.">
+            <div class="vista f f-prom" aria-hidden="true">
+              <div class="su"><span>È L'ORA DELLA MEDICINA</span><b>12:30</b></div>
+              <div class="sch"><svg><use href="#m-compressa"/></svg><b>Sinemet</b><span>1 compressa intera</span></div>
+              <div class="si"><svg><use href="#m-spunta"/></svg><b>L'HO PRESA</b></div>
+              <div class="poi">Tra 10 minuti</div>
+            </div>
+          </div></div>
+        </div>
+      </li>
+
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>12:31</b> un tocco</span>
+          <h3>Un tasto solo. E se sbagli, si annulla.</h3>
+          <p>Niente «sei sicura?», che con il tremore raddoppia gli errori. Dopo il tocco lo schermo diventa verde e resta un tasto «Ho sbagliato, annulla», lontano da dove c'era quello verde. Una dose già segnata non si può segnare due volte.</p>
+        </div>
+        <div class="passo-figura">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata verde di conferma: Fatto, brava! Sinemet presa alle 12:31, con il tasto Ho sbagliato, annulla in basso a sinistra.">
+            <div class="vista t t-fatto" aria-hidden="true">
+              <svg><use href="#m-spunta"/></svg>
+              <b>Fatto. Brava!</b>
+              <span>Sinemet, presa alle 12:31</span>
+              <span class="t-annulla">Ho sbagliato, annulla</span>
+              <span class="t-conto">Torno alla giornata tra 10 secondi</span>
+            </div>
+          </div></div>
+        </div>
+      </li>
+
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>12:52</b> nessuna risposta</span>
+          <h3>Se non risponde, lo sai tu.</h3>
+          <p>Lo schermo cambia colore e continua a chiedere. Dopo un po' l'avviso arriva sul telefono del familiare, con una notifica o su Telegram. Non a ogni dose: solo quando qualcosa non va.</p>
+          <ul class="punti">
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Per le medicine con l'orario critico l'avviso parte prima.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Con più familiari, gli avvisi arrivano in ordine, uno dopo l'altro.</span></li>
+          </ul>
+        </div>
+        <div class="passo-figura coppia">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata rossa del tablet: Sinemet delle 12:30 non ancora presa, da 22 minuti.">
+            <div class="vista t t-ritardo" aria-hidden="true">
+              <div class="t-testa"><span class="t-etich"><svg><use href="#m-campana"/></svg>NON ANCORA PRESA</span><span class="t-ora">12:52</span></div>
+              <div class="t-corpo">
+                <div class="t-scheda">
+                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Sinemet</div><div class="t-quanto">delle 12:30 · da 22 minuti</div></div></div>
+                  <p class="t-istr">Hai preso la medicina?<br>Giovanni è stato avvisato.</p>
+                </div>
+                <div class="t-tasti">
+                  <div class="t-presa"><svg><use href="#m-spunta"/></svg><b>L'HO PRESA</b><small>adesso o poco fa</small></div>
+                  <div class="t-due"><span class="t-sec"><svg><use href="#m-orologio"/></svg>Tra 10 minuti</span><span class="t-sec piano">Non la prendo</span></div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="telefono"><div class="schermo" role="img" aria-label="Notifica sul telefono del familiare: Mamma non ha confermato il Sinemet delle 12:30.">
+            <div class="vista f f-blocco" aria-hidden="true">
+              <div class="ora">12:52</div>
+              <div class="data">domenica 9 novembre</div>
+              <div class="f-notifica">
+                <span class="da"><svg><use href="#m-marchio"/></svg>Pìnnuli · adesso</span>
+                <b>Mamma non ha confermato il Sinemet delle 12:30</b>
+                <p>Sono passati 22 minuti.</p>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </li>
+
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>13:10</b> l'aveva presa</span>
+          <h3>Presa in orario, tasto dimenticato? Si dice.</h3>
+          <p>Capita: la compressa è andata giù puntuale, il tocco no. Quando conferma in ritardo, Pìnnuli chiede una cosa sola, con due tasti grandi. Nello storico finisce l'ora vera, e il familiare può correggerla anche dal telefono.</p>
+        </div>
+        <div class="passo-figura">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Domanda sul tablet: quando l'hai presa? Due tasti: all'ora giusta, alle 12:30, oppure l'ho presa adesso.">
+            <div class="vista t t-domanda" aria-hidden="true">
+              <h4>Quando l'hai presa?</h4>
+              <p>Sinemet delle 12:30</p>
+              <div class="t-scelte">
+                <div class="t-scelta a"><svg><use href="#m-spunta"/></svg><b>All'ora giusta</b><span>alle 12:30</span></div>
+                <div class="t-scelta b"><svg><use href="#m-orologio"/></svg><b>L'ho presa adesso</b><span>alle 13:10</span></div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </li>
+
+      <li class="passo">
+        <div class="passo-testo">
+          <span class="orario"><b>22:30</b> di sera</span>
+          <h3>La sera abbassa le luci da solo.</h3>
+          <p>Il tema notte arriva in automatico e non abbaglia. Se alla stessa ora ci sono due medicine, le mostra insieme e si confermano con un tocco. E se cade il Wi‑Fi: «Non riesco a collegarmi. Le medicine funzionano lo stesso.»</p>
+        </div>
+        <div class="passo-figura">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Tablet in tema notte alle 22:30 con due medicine da prendere insieme, Sinemet Retard e Lactoflorene, e un tasto LE HO PRESE.">
+            <div class="vista t t-notte" aria-hidden="true">
+              <div class="t-testa"><span class="t-etich" style="color:var(--m-notte-acc)"><svg><use href="#m-campana"/></svg>È L'ORA DELLE MEDICINE</span><span class="t-ora">22:30</span></div>
+              <div class="n-corpo">
+                <div class="n-scheda">
+                  <span class="eti">Da prendere adesso</span>
+                  <div class="n-med"><svg><use href="#m-compressa"/></svg><div>Sinemet RETARD<small>1 compressa intera</small></div></div>
+                  <div class="n-med"><svg><use href="#m-capsula"/></svg><div>Lactoflorene<small>1 capsula, dopo aver urinato</small></div></div>
+                </div>
+                <div class="n-tasto"><svg><use href="#m-spunta"/></svg><b>LE HO PRESE<br>TUTTE E DUE</b></div>
+              </div>
+              <div class="t-piede"><span>Poi per oggi hai finito.</span><span>Buonanotte.</span></div>
+            </div>
+          </div></div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="sez familiare" id="familiare">
+  <div class="w">
+    <div class="testa-sez">
+      <p class="occhiello">Per chi le vuole bene</p>
+      <h2>Tu lo sai, senza dover telefonare.</h2>
+      <p>Dal telefono vedi la giornata in tempo reale e gestisci la terapia. Lei non ha password: il tablet si collega una volta con un codice di sei cifre e resta collegato.</p>
+    </div>
+    <div class="griglia">
+      <div class="due-tel">
+        <figure>
+          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Oggi del familiare: 2 dosi prese su 14, un avviso rosso per il Sinemet delle 12:30 e l'elenco delle dosi.">
+            <div class="vista f" aria-hidden="true">
+              <div class="f-chi"><span class="f-pill"><i>M</i>Mamma</span><span class="f-live">in diretta</span></div>
+              <div class="f-allerta"><svg><use href="#s-ritardo"/></svg><div><b>Sinemet delle 12:30 non ancora preso</b><span>da 22 minuti</span></div></div>
+              <div class="f-anello">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#E6DCCB" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#3E6B2F" stroke-width="12" stroke-dasharray="36 216" stroke-linecap="round" transform="rotate(-90 50 50)"/><text x="50" y="59" text-anchor="middle" font-size="26" font-weight="700" fill="#231F1A">2</text></svg>
+                <div><b>2 prese su 14</b><span>Domenica 9 novembre</span><span class="ieri">Ieri: 14 su 14</span></div>
+              </div>
+              <div class="f-lista">
+                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Lactoflorene</span><span class="st">8:02</span></div>
+                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Sinemet</span><span class="st">8:31</span></div>
+                <div class="f-riga rit"><svg><use href="#s-ritardo"/></svg><time>12:30</time><span>Sinemet</span><span class="st">In ritardo</span></div>
+                <div class="f-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Peridon</span></div>
+              </div>
+              <div class="f-tasto">Segna «Presa alle 12:30»</div>
+              <div class="f-tab"><b>Oggi</b><span>Terapia</span><span>Storico</span><span>Altro</span></div>
+            </div>
+          </div></div>
+          <figcaption>Oggi, in diretta</figcaption>
+        </figure>
+        <figure>
+          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Terapia: un antibiotico per sette giorni, il Sinemet a cinque orari, il Peridon legato ai pasti e un gastroprotettore sospeso.">
+            <div class="vista f" aria-hidden="true">
+              <div class="f-titolo">Terapia</div>
+              <div class="f-var"><b>Variazione in corso</b>Sinemet delle 19:30: mezza compressa fino a giovedì. Poi torna tutto come prima, da solo.</div>
+              <div class="f-med"><svg><use href="#m-compressa"/></svg><div><b>Sinemet</b><span>8:30 · 12:30 · 16:30 · 19:30</span></div></div>
+              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Neo Furadantin</b><span>dopo pranzo e dopo cena</span></div><em class="gg">ancora 5 giorni</em></div>
+              <div class="f-med"><svg><use href="#m-bustina"/></svg><div><b>Peridon</b><span>15 minuti prima dei pasti</span></div></div>
+              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Gastroprotettore</b><span>appena sveglia</span></div><em class="so">sospeso</em></div>
+              <div class="f-tab" style="margin-top:auto"><span>Oggi</span><b>Terapia</b><span>Storico</span><span>Altro</span></div>
+            </div>
+          </div></div>
+          <figcaption>La terapia che cambia</figcaption>
+        </figure>
+      </div>
+
+      <ul class="cose">
+        <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="var(--terracotta-tinta)"/><path d="M22 11a7 7 0 0 1 7 7v5l2.500 4h-19L15 23v-5a7 7 0 0 1 7-7z" fill="none" stroke="var(--terracotta)" stroke-width="2.4" stroke-linejoin="round"/><path d="M19 31a3 3 0 0 0 6 0" fill="none" stroke="var(--terracotta)" stroke-width="2.4"/></svg>
+          <div><h3>Avvisi solo quando servono</h3><p>Notifica sul telefono o messaggio su Telegram se una dose resta senza risposta. Per il resto, silenzio.</p></div></li>
+        <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="var(--terracotta-tinta)"/><path d="M12 16h20M12 22h20M12 28h12" stroke="var(--terracotta)" stroke-width="2.600" stroke-linecap="round"/></svg>
+          <div><h3>La terapia cambia, e va bene</h3><p>Un antibiotico per sette giorni, mezza dose fino a giovedì, un farmaco sospeso. Lo imposti in pochi tocchi e torna a posto da solo. Gli orari possono seguire i pasti: «15 minuti prima di pranzo».</p></div></li>
+        <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="var(--terracotta-tinta)"/><circle cx="17" cy="18" r="4.500" fill="none" stroke="var(--terracotta)" stroke-width="2.400"/><circle cx="29" cy="19" r="3.500" fill="none" stroke="var(--terracotta)" stroke-width="2.400"/><path d="M9 32c1-5 4-7 8-7s7 2 8 7M27 26c4 0 6 2 7 5" fill="none" stroke="var(--terracotta)" stroke-width="2.400" stroke-linecap="round"/></svg>
+          <div><h3>In due si controlla meglio</h3><p>Inviti una sorella, un fratello o chi dà una mano con un link. Ognuno sceglie da sé la propria password e riceve gli avvisi.</p></div></li>
+        <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="var(--terracotta-tinta)"/><rect x="10" y="12" width="17" height="20" rx="3" fill="none" stroke="var(--terracotta)" stroke-width="2.400"/><rect x="24" y="17" width="10" height="16" rx="2.500" fill="var(--terracotta-tinta)" stroke="var(--terracotta)" stroke-width="2.400"/></svg>
+          <div><h3>Tablet, telefono o tutti e due</h3><p>Non hai ancora un tablet da appendere? Pìnnuli si installa sul telefono di chi prende le medicine, Android o iPhone, e fa lo stesso lavoro.</p></div></li>
+        <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="var(--terracotta-tinta)"/><path d="M12 30V14M12 30h20" stroke="var(--terracotta)" stroke-width="2.400" stroke-linecap="round"/><path d="M16 25l5-6 4 3 6-8" fill="none" stroke="var(--terracotta)" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><h3>Lo storico dice com'è andata</h3><p>Giorno per giorno, dose per dose, con l'ora vera di ogni presa. Utile da mostrare al medico alla prossima visita.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sez mani">
+  <div class="w">
+    <div class="testa-sez">
+      <p class="occhiello">Accessibilità</p>
+      <h2>Pensato per il momento peggiore.</h2>
+      <p>Il promemoria arriva proprio quando l'effetto della dose precedente sta finendo, e le mani tremano di più. Se funziona lì, funziona sempre.</p>
+    </div>
+    <ul class="misure">
+      <li><b class="cifra">⅓</b><h3>Un tasto grande un terzo dello schermo</h3><p>«L'HO PRESA» è sempre nello stesso punto e non si può mancare.</p></li>
+      <li><b class="cifra">1</b><h3>Solo tocchi singoli</h3><p>Niente scorrimenti, doppi tocchi o pressioni lunghe. I tocchi ripetuti per sbaglio vengono ignorati.</p></li>
+      <li><b class="cifra">7:1</b><h3>Contrasto alto, lettere grandi</h3><p>Un carattere disegnato per chi vede poco, che distingue la I dalla l e lo 0 dalla O.</p></li>
+      <li><b class="cifra">3</b><h3>Colore, icona e parola</h3><p>Lo stato di una dose non è mai affidato al solo colore. Lo sfondo intero dice cosa succede, anche da lontano.</p></li>
+      <li><b class="cifra">0</b><h3>Password per chi prende le medicine</h3><p>Il dispositivo lo collega il familiare, una volta. Poi resta acceso e basta.</p></li>
+      <li><b class="cifra">24h</b><h3>Suona anche senza internet</h3><p>Se la linea cade, i promemoria partono lo stesso e tutto si riallinea quando torna.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="sez gratis" id="gratis">
+  <div class="w">
+    <div class="colonna">
+      <p class="occhiello">Quanto costa</p>
+      <h2>Niente. Se ne hai bisogno, scrivimi.</h2>
+      <p>Pìnnuli è nato per aiutare mia madre e non ha un listino. Se in casa hai qualcuno che fa fatica con le medicine, contattami dal mio sito e te lo attivo io, gratis.</p>
+      <a class="tasto" href="https://para.to" rel="noopener">Scrivimi su para.to</a>
+    </div>
+    <ol class="come">
+      <li><span class="n">1</span><div><h3>Mi scrivi</h3><p>Dal mio sito, para.to. Mi racconti in due righe per chi ti serve.</p></div></li>
+      <li><span class="n">2</span><div><h3>Ti creo l'accesso</h3><p>Entri dal telefono e inserisci le medicine e gli orari, come li ha scritti il medico.</p></div></li>
+      <li><span class="n">3</span><div><h3>Colleghi lo schermo</h3><p>Sul tablet o sul telefono compare un codice di sei cifre. Lo digiti una volta, e da lì Pìnnuli fa da solo.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer class="piede">
+  <div class="w">
+    <div class="riga">
+      <a class="marchio" href="#inizio" aria-label="Pìnnuli, torna all'inizio"><svg aria-hidden="true"><use href="#i-marchio"/></svg>pìnnuli</a>
+      <span>Fatto in Salento da <a href="https://para.to" rel="noopener">Giovanni Parato · para.to</a></span>
+      <a href="https://app.pinnuli.it/login">Hai già un accesso? Entra</a>
+    </div>
+    <p class="avviso">Pìnnuli ricorda, non prescrive. Non suggerisce dosi, non dà consigli medici e non sostituisce il medico o il farmacista. Non è un servizio di emergenza: in caso di bisogno chiama il 112. I nomi dei farmaci negli schermi sono esempi.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var demo = document.getElementById('demo');
+  if (!demo) return;
+  var viste = demo.querySelectorAll('[data-vista]');
+  var riga = document.getElementById('demo-riga');
+  var icona = document.getElementById('demo-icona');
+  var statoRiga = document.getElementById('demo-stato');
+  var aiuto = document.getElementById('demo-aiuto');
+  var ritorno = null;
+  function mostra(stato) {
+    demo.dataset.stato = stato;
+    viste.forEach(function (v) { v.hidden = v.dataset.vista !== stato; });
+    var fatto = stato === 'fatto';
+    riga.className = 'f-riga ' + (fatto ? 'ok' : 'ora');
+    icona.setAttribute('href', fatto ? '#s-presa' : '#s-adesso');
+    statoRiga.textContent = fatto ? 'Presa' : 'Adesso';
+    aiuto.textContent = fatto ? 'Ecco: sul telefono del familiare la dose diventa verde.' : 'Prova: tocca il tasto verde sul tablet.';
+    clearTimeout(ritorno);
+    if (fatto) ritorno = setTimeout(function () { mostra('promemoria'); }, 9000);
+  }
+  document.getElementById('demo-presa').addEventListener('click', function () { mostra('fatto'); });
+  document.getElementById('demo-annulla').addEventListener('click', function () { mostra('promemoria'); });
+})();
+</script>
+<!--/BODY-->
+</body>
+</html>
