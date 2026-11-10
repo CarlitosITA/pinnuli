@@ -119,7 +119,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .t-scheda { background: var(--m-bianco); color: var(--m-carrubo); border-radius: 2.5cqw; padding: 2.6cqw 3cqw; display: flex; flex-direction: column; justify-content: center; gap: 1.6cqw; min-width: 0; }
 .t-farmaco { display: flex; align-items: center; gap: 2.2cqw; }
 .t-farmaco svg { width: 11cqw; height: 11cqw; }
-.t-nome { font-size: 5.9cqw; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.t-nome { font-size: 4.8cqw; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
 .t-quanto { font-size: 2.6cqw; font-weight: 700; color: var(--m-terra); margin-top: .7cqw; }
 .t-istr { font-size: 2.3cqw; line-height: 1.3; }
 .t-tasti { display: flex; flex-direction: column; gap: 1.8cqw; min-width: 0; }
@@ -159,7 +159,7 @@ button.t-annulla { cursor: pointer; }
 .g-prossima { background: var(--m-bianco); border: .25cqw solid var(--m-terra); border-radius: 2.2cqw; padding: 2.2cqw 2.8cqw; display: flex; flex-direction: column; gap: 1cqw; }
 .g-prossima .eti { font-size: 1.7cqw; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--m-terra); }
 .g-prossima .t-farmaco svg { width: 9cqw; height: 9cqw; }
-.g-prossima .t-nome { font-size: 5cqw; }
+.g-prossima .t-nome { font-size: 4.4cqw; }
 .g-prossima .dose { font-size: 2.3cqw; margin-top: .5cqw; }
 .g-quando { display: flex; align-items: baseline; gap: 1.2cqw; }
 .g-quando b { font-size: 4.4cqw; color: var(--m-terra); line-height: 1; }
@@ -259,7 +259,7 @@ button.t-annulla { cursor: pointer; }
 .f-prom .su b { font-size: 8cqw; letter-spacing: 0; }
 .f-prom .sch { background: var(--m-bianco); color: var(--m-carrubo); border-radius: 6cqw; padding: 5cqw; display: grid; gap: 2.4cqw; justify-items: center; text-align: center; }
 .f-prom .sch svg { width: 26cqw; height: 26cqw; }
-.f-prom .sch b { font-size: 13cqw; line-height: 1; }
+.f-prom .sch b { font-size: 11cqw; line-height: 1; }
 .f-prom .sch span { font-size: 5.4cqw; font-weight: 700; color: var(--m-terra); }
 .f-prom .si { flex: 1; background: var(--m-ulivo); border: 1.2cqw solid var(--m-bianco); border-radius: 6cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2cqw; }
 .f-prom .si svg { width: 18cqw; height: 18cqw; }
@@ -436,7 +436,7 @@ button.t-annulla { cursor: pointer; }
               <div class="t-scheda">
                 <div class="t-farmaco">
                   <svg role="img" aria-label="Compressa gialla rotonda"><use href="#m-compressa"/></svg>
-                  <div><div class="t-nome">Sinemet</div><div class="t-quanto">1 compressa intera</div></div>
+                  <div><div class="t-nome">Vitamina D</div><div class="t-quanto">1 compressa intera</div></div>
                 </div>
                 <p class="t-istr">Con un bicchiere d'acqua.<br>La prossima medicina è alle <b>12:45</b>.</p>
               </div>
@@ -457,7 +457,7 @@ button.t-annulla { cursor: pointer; }
           <div class="vista t t-fatto" data-vista="fatto" hidden>
             <svg aria-hidden="true"><use href="#m-spunta"/></svg>
             <b>Fatto. Brava!</b>
-            <span>Sinemet, presa alle 12:30</span>
+            <span>Vitamina D, presa alle 12:30</span>
             <button type="button" class="t-annulla" id="demo-annulla">Ho sbagliato, annulla</button>
             <span class="t-conto">Torno alla giornata tra poco</span>
           </div>
@@ -537,7 +537,7 @@ button.t-annulla { cursor: pointer; }
           </ul>
         </div>
         <div class="passo-figura">
-          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata del tablet a riposo: sono le 12:05, la prossima medicina è il Sinemet alle 12:30, due dosi su sei sono già prese.">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata del tablet a riposo: sono le 12:05, la prossima medicina è la Vitamina D alle 12:30, due dosi su sei sono già prese.">
             <div class="vista t" aria-hidden="true">
               <div class="g-testa">
                 <span class="g-marchio"><svg><use href="#m-marchio"/></svg>pìnnuli</span>
@@ -547,18 +547,18 @@ button.t-annulla { cursor: pointer; }
               <div class="g-corpo">
                 <div class="g-prossima">
                   <span class="eti">Prossima medicina</span>
-                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Sinemet</div><div class="dose">1 compressa intera</div></div></div>
+                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Vitamina D</div><div class="dose">1 compressa intera</div></div></div>
                   <div class="g-quando"><b>alle 12:30</b><span>tra 25 minuti</span></div>
                   <span class="g-calma">Ti avviso io quando è ora. Non devi fare niente adesso.</span>
                 </div>
                 <div class="g-lista">
                   <h4>La tua giornata</h4>
-                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Lactoflorene</span><span class="st">Presa 8:02</span></div>
-                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Sinemet</span><span class="st">Presa 8:31</span></div>
-                  <div class="g-riga ora"><svg><use href="#s-adesso"/></svg><time>12:30</time><span>Sinemet</span><span class="st">Prossima</span></div>
-                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Peridon</span></div>
-                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>13:45</time><span>Neo Furadantin</span></div>
-                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>14:00</time><span>Cardioaspirina</span></div>
+                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Fermenti lattici</span><span class="st">Presa 8:02</span></div>
+                  <div class="g-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Vitamina D</span><span class="st">Presa 8:31</span></div>
+                  <div class="g-riga ora"><svg><use href="#s-adesso"/></svg><time>12:30</time><span>Vitamina D</span><span class="st">Prossima</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Pressione</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>13:45</time><span>Antibiotico</span></div>
+                  <div class="g-riga poi"><svg><use href="#s-poi"/></svg><time>14:00</time><span>Colesterolo</span></div>
                 </div>
               </div>
             </div>
@@ -570,7 +570,7 @@ button.t-annulla { cursor: pointer; }
         <div class="passo-testo">
           <span class="orario"><b>12:30</b> è ora</span>
           <h3>Suona, parla e si accende a tutto schermo.</h3>
-          <p>«Sono le dodici e mezza. È l'ora del Sinemet: una compressa.» Lo dice a voce e lo scrive enorme, con il disegno della medicina. Va avanti finché qualcuno risponde.</p>
+          <p>«Sono le dodici e mezza. È l'ora della Vitamina D: una compressa.» Lo dice a voce e lo scrive enorme, con il disegno della medicina. Va avanti finché qualcuno risponde.</p>
           <ul class="punti">
             <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Funziona uguale sul telefono, con la notifica anche a schermo spento.</span></li>
             <li><svg aria-hidden="true"><use href="#i-si"/></svg><span>Tablet e telefono restano allineati: confermi su uno, tace anche l'altro.</span></li>
@@ -578,10 +578,10 @@ button.t-annulla { cursor: pointer; }
           </ul>
         </div>
         <div class="passo-figura solo-tel">
-          <div class="telefono"><div class="schermo" role="img" aria-label="Promemoria sul telefono della paziente: è l'ora del Sinemet, una compressa intera, con un grande tasto verde L'HO PRESA.">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Promemoria sul telefono della paziente: è l'ora della Vitamina D, una compressa intera, con un grande tasto verde L'HO PRESA.">
             <div class="vista f f-prom" aria-hidden="true">
               <div class="su"><span>È L'ORA DELLA MEDICINA</span><b>12:30</b></div>
-              <div class="sch"><svg><use href="#m-compressa"/></svg><b>Sinemet</b><span>1 compressa intera</span></div>
+              <div class="sch"><svg><use href="#m-compressa"/></svg><b>Vitamina D</b><span>1 compressa intera</span></div>
               <div class="si"><svg><use href="#m-spunta"/></svg><b>L'HO PRESA</b></div>
               <div class="poi">Tra 10 minuti</div>
             </div>
@@ -596,11 +596,11 @@ button.t-annulla { cursor: pointer; }
           <p>Niente «sei sicura?», che con il tremore raddoppia gli errori. Dopo il tocco lo schermo diventa verde e resta un tasto «Ho sbagliato, annulla», lontano da dove c'era quello verde. Una dose già segnata non si può segnare due volte.</p>
         </div>
         <div class="passo-figura">
-          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata verde di conferma: Fatto, brava! Sinemet presa alle 12:31, con il tasto Ho sbagliato, annulla in basso a sinistra.">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata verde di conferma: Fatto, brava! Vitamina D presa alle 12:31, con il tasto Ho sbagliato, annulla in basso a sinistra.">
             <div class="vista t t-fatto" aria-hidden="true">
               <svg><use href="#m-spunta"/></svg>
               <b>Fatto. Brava!</b>
-              <span>Sinemet, presa alle 12:31</span>
+              <span>Vitamina D, presa alle 12:31</span>
               <span class="t-annulla">Ho sbagliato, annulla</span>
               <span class="t-conto">Torno alla giornata tra 10 secondi</span>
             </div>
@@ -619,12 +619,12 @@ button.t-annulla { cursor: pointer; }
           </ul>
         </div>
         <div class="passo-figura coppia">
-          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata rossa del tablet: Sinemet delle 12:30 non ancora presa, da 22 minuti.">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Schermata rossa del tablet: Vitamina D delle 12:30 non ancora presa, da 22 minuti.">
             <div class="vista t t-ritardo" aria-hidden="true">
               <div class="t-testa"><span class="t-etich"><svg><use href="#m-campana"/></svg>NON ANCORA PRESA</span><span class="t-ora">12:52</span></div>
               <div class="t-corpo">
                 <div class="t-scheda">
-                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Sinemet</div><div class="t-quanto">delle 12:30 · da 22 minuti</div></div></div>
+                  <div class="t-farmaco"><svg><use href="#m-compressa"/></svg><div><div class="t-nome">Vitamina D</div><div class="t-quanto">delle 12:30 · da 22 minuti</div></div></div>
                   <p class="t-istr">Hai preso la medicina?<br>Giovanni è stato avvisato.</p>
                 </div>
                 <div class="t-tasti">
@@ -634,13 +634,13 @@ button.t-annulla { cursor: pointer; }
               </div>
             </div>
           </div></div>
-          <div class="telefono"><div class="schermo" role="img" aria-label="Notifica sul telefono del familiare: Mamma non ha confermato il Sinemet delle 12:30.">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Notifica sul telefono del familiare: Mamma non ha confermato la Vitamina D delle 12:30.">
             <div class="vista f f-blocco" aria-hidden="true">
               <div class="ora">12:52</div>
               <div class="data">domenica 9 novembre</div>
               <div class="f-notifica">
                 <span class="da"><svg><use href="#m-marchio"/></svg>Pìnnuli · adesso</span>
-                <b>Mamma non ha confermato il Sinemet delle 12:30</b>
+                <b>Mamma non ha confermato la Vitamina D delle 12:30</b>
                 <p>Sono passati 22 minuti.</p>
               </div>
             </div>
@@ -658,7 +658,7 @@ button.t-annulla { cursor: pointer; }
           <div class="tablet"><div class="schermo" role="img" aria-label="Domanda sul tablet: quando l'hai presa? Due tasti: all'ora giusta, alle 12:30, oppure l'ho presa adesso.">
             <div class="vista t t-domanda" aria-hidden="true">
               <h4>Quando l'hai presa?</h4>
-              <p>Sinemet delle 12:30</p>
+              <p>Vitamina D delle 12:30</p>
               <div class="t-scelte">
                 <div class="t-scelta a"><svg><use href="#m-spunta"/></svg><b>All'ora giusta</b><span>alle 12:30</span></div>
                 <div class="t-scelta b"><svg><use href="#m-orologio"/></svg><b>L'ho presa adesso</b><span>alle 13:10</span></div>
@@ -675,14 +675,14 @@ button.t-annulla { cursor: pointer; }
           <p>Il tema notte arriva in automatico e non abbaglia. Se alla stessa ora ci sono due medicine, le mostra insieme e si confermano con un tocco. E se cade il Wi‑Fi: «Non riesco a collegarmi. Le medicine funzionano lo stesso.»</p>
         </div>
         <div class="passo-figura">
-          <div class="tablet"><div class="schermo" role="img" aria-label="Tablet in tema notte alle 22:30 con due medicine da prendere insieme, Sinemet Retard e Lactoflorene, e un tasto LE HO PRESE.">
+          <div class="tablet"><div class="schermo" role="img" aria-label="Tablet in tema notte alle 22:30 con due medicine da prendere insieme, Melatonina e fermenti lattici, e un tasto LE HO PRESE.">
             <div class="vista t t-notte" aria-hidden="true">
               <div class="t-testa"><span class="t-etich" style="color:var(--m-notte-acc)"><svg><use href="#m-campana"/></svg>È L'ORA DELLE MEDICINE</span><span class="t-ora">22:30</span></div>
               <div class="n-corpo">
                 <div class="n-scheda">
                   <span class="eti">Da prendere adesso</span>
-                  <div class="n-med"><svg><use href="#m-compressa"/></svg><div>Sinemet RETARD<small>1 compressa intera</small></div></div>
-                  <div class="n-med"><svg><use href="#m-capsula"/></svg><div>Lactoflorene<small>1 capsula, dopo aver urinato</small></div></div>
+                  <div class="n-med"><svg><use href="#m-compressa"/></svg><div>Melatonina<small>1 compressa intera</small></div></div>
+                  <div class="n-med"><svg><use href="#m-capsula"/></svg><div>Fermenti lattici<small>1 capsula, con un po' d'acqua</small></div></div>
                 </div>
                 <div class="n-tasto"><svg><use href="#m-spunta"/></svg><b>LE HO PRESE<br>TUTTE E DUE</b></div>
               </div>
@@ -705,19 +705,19 @@ button.t-annulla { cursor: pointer; }
     <div class="griglia">
       <div class="due-tel">
         <figure>
-          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Oggi del familiare: 2 dosi prese su 6, un avviso rosso per il Sinemet delle 12:30 e l'elenco delle dosi.">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Oggi del familiare: 2 dosi prese su 6, un avviso rosso per la Vitamina D delle 12:30 e l'elenco delle dosi.">
             <div class="vista f" aria-hidden="true">
               <div class="f-chi"><span class="f-pill"><i>M</i>Mamma</span><span class="f-live">in diretta</span></div>
-              <div class="f-allerta"><svg><use href="#s-ritardo"/></svg><div><b>Sinemet delle 12:30 non ancora preso</b><span>da 22 minuti</span></div></div>
+              <div class="f-allerta"><svg><use href="#s-ritardo"/></svg><div><b>Vitamina D delle 12:30 non ancora presa</b><span>da 22 minuti</span></div></div>
               <div class="f-anello">
                 <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#E6DCCB" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#3E6B2F" stroke-width="12" stroke-dasharray="84 168" stroke-linecap="round" transform="rotate(-90 50 50)"/><text x="50" y="59" text-anchor="middle" font-size="26" font-weight="700" fill="#231F1A">2</text></svg>
                 <div><b>2 prese su 6</b><span>Domenica 9 novembre</span><span class="ieri">Ieri: 6 su 6</span></div>
               </div>
               <div class="f-lista">
-                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Lactoflorene</span><span class="st">8:02</span></div>
-                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Sinemet</span><span class="st">8:31</span></div>
-                <div class="f-riga rit"><svg><use href="#s-ritardo"/></svg><time>12:30</time><span>Sinemet</span><span class="st">In ritardo</span></div>
-                <div class="f-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Peridon</span></div>
+                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:00</time><span>Fermenti lattici</span><span class="st">8:02</span></div>
+                <div class="f-riga ok"><svg><use href="#s-presa"/></svg><time>8:30</time><span>Vitamina D</span><span class="st">8:31</span></div>
+                <div class="f-riga rit"><svg><use href="#s-ritardo"/></svg><time>12:30</time><span>Vitamina D</span><span class="st">In ritardo</span></div>
+                <div class="f-riga poi"><svg><use href="#s-poi"/></svg><time>12:45</time><span>Pressione</span></div>
               </div>
               <div class="f-tasto">Segna «Presa alle 12:30»</div>
               <div class="f-tab"><b>Oggi</b><span>Terapia</span><span>Storico</span><span>Altro</span></div>
@@ -726,14 +726,14 @@ button.t-annulla { cursor: pointer; }
           <figcaption>Oggi, in diretta</figcaption>
         </figure>
         <figure>
-          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Terapia: un antibiotico per sette giorni, il Sinemet a cinque orari, il Peridon legato ai pasti e un gastroprotettore sospeso.">
+          <div class="telefono"><div class="schermo" role="img" aria-label="Schermata Terapia: una variazione temporanea, la vitamina D, un antibiotico per pochi giorni, i fermenti lattici legati ai pasti e un integratore sospeso.">
             <div class="vista f" aria-hidden="true">
               <div class="f-titolo">Terapia</div>
-              <div class="f-var"><b>Variazione in corso</b>Sinemet delle 19:30: mezza compressa fino a giovedì. Poi torna tutto come prima, da solo.</div>
-              <div class="f-med"><svg><use href="#m-compressa"/></svg><div><b>Sinemet</b><span>8:30 · 12:30 · 16:30 · 19:30</span></div></div>
-              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Neo Furadantin</b><span>dopo pranzo e dopo cena</span></div><em class="gg">ancora 5 giorni</em></div>
-              <div class="f-med"><svg><use href="#m-bustina"/></svg><div><b>Peridon</b><span>15 minuti prima dei pasti</span></div></div>
-              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Gastroprotettore</b><span>appena sveglia</span></div><em class="so">sospeso</em></div>
+              <div class="f-var"><b>Variazione in corso</b>Pressione delle 20:00: mezza compressa fino a giovedì. Poi torna tutto come prima, da solo.</div>
+              <div class="f-med"><svg><use href="#m-compressa"/></svg><div><b>Vitamina D</b><span>ogni giorno alle 12:30</span></div></div>
+              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Antibiotico</b><span>dopo pranzo e dopo cena</span></div><em class="gg">ancora 5 giorni</em></div>
+              <div class="f-med"><svg><use href="#m-bustina"/></svg><div><b>Fermenti lattici</b><span>15 minuti prima dei pasti</span></div></div>
+              <div class="f-med"><svg><use href="#m-capsula"/></svg><div><b>Integratore di ferro</b><span>al mattino</span></div><em class="so">sospeso</em></div>
               <div class="f-tab" style="margin-top:auto"><span>Oggi</span><b>Terapia</b><span>Storico</span><span>Altro</span></div>
             </div>
           </div></div>
@@ -800,7 +800,7 @@ button.t-annulla { cursor: pointer; }
       <span>Fatto in Salento da <a href="https://para.to" rel="noopener">Giovanni Parato · para.to</a></span>
       <a href="https://app.pinnuli.it/login">Hai già un accesso? Entra</a>
     </div>
-    <p class="avviso">Pìnnuli ricorda, non prescrive. Non suggerisce dosi, non dà consigli medici e non sostituisce il medico o il farmacista. Non è un servizio di emergenza: in caso di bisogno chiama il 112. I nomi dei farmaci negli schermi sono esempi.</p>
+    <p class="avviso">Pìnnuli ricorda, non prescrive. Non suggerisce dosi, non dà consigli medici e non sostituisce il medico o il farmacista. Non è un servizio di emergenza: in caso di bisogno chiama il 112. Gli schermi mostrano dati di esempio.</p>
   </div>
 </footer>
 
