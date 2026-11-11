@@ -131,6 +131,21 @@ export function Field({ label, hint, children, htmlFor }: { label: string; hint?
   );
 }
 
+export const GENDER_LABELS = { f: 'Donna', m: 'Uomo', x: 'Non specificato' } as const;
+
+/** Scelta del genere, solo per scrivere le frasi nella forma giusta («avvisata» / «avvisato»). */
+export function GenderSelect({ id, value, onChange, label }: { id: string; value: 'f' | 'm' | 'x'; onChange: (g: 'f' | 'm' | 'x') => void; label?: string }) {
+  return (
+    <select id={id} aria-label={label} value={value} onChange={(e) => onChange(e.target.value as 'f' | 'm' | 'x')}>
+      {(Object.keys(GENDER_LABELS) as (keyof typeof GENDER_LABELS)[]).map((g) => (
+        <option key={g} value={g}>
+          {GENDER_LABELS[g]}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 export function timeOf(ms: number, tz = 'Europe/Rome') {
   return new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: tz }).format(new Date(ms));
 }

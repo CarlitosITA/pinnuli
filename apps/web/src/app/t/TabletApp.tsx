@@ -11,6 +11,7 @@ import {
   reminderSpeech,
   shouldRepeatSound,
   buildViews,
+  byGender,
   formatLocalTime,
   type DoseView,
   type GroupView,
@@ -182,7 +183,7 @@ export default function TabletApp() {
 
   if (t.phase === 'boot') return <main className="pt" aria-busy="true" />;
   if (t.phase === 'pair' || !plan) return <PairScreen code={t.pair?.code ?? null} offline={t.link === 'offline'} install={installHint} />;
-  if (t.stale) return <StaleScreen contact={plan.contact} />;
+  if (t.stale) return <StaleScreen contact={plan.contact} gender={plan.contactGender} />;
   if (!screen) return <main className="pt" aria-busy="true" />;
 
   // ─── schermate sovrapposte ───
@@ -399,7 +400,7 @@ export default function TabletApp() {
         ? `Prendi ${many ? 'le medicine' : 'la medicina'} adesso, appena puoi.`
         : ui.mode === 'skip'
           ? `Salta questa dose e prendi la prossima. Non prenderne due insieme.`
-          : `Non prenderla da sola: chiedi a ${plan.contact ?? 'un familiare'} cosa fare.`;
+          : `${byGender(plan.patient.gender, { f: 'Non prenderla da sola', m: 'Non prenderla da solo', x: 'Non prenderla senza chiedere' })}: chiedi a ${plan.contact ?? 'un familiare'} cosa fare.`;
     return (
       <SimpleChoice
         title="Va bene"

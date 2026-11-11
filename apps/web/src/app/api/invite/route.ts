@@ -11,6 +11,7 @@ const body = z.object({
   token: z.string().min(20).max(100),
   name: z.string().trim().min(1, 'Scrivi il tuo nome').max(60),
   email: z.string().trim().toLowerCase().email('Scrivi un indirizzo email valido'),
+  gender: z.enum(['f', 'm', 'x']).optional(),
   password: z.string().min(1, 'Scegli una password').max(200),
 });
 

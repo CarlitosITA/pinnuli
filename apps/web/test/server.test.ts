@@ -8,7 +8,7 @@ import { createMemoryNotifier } from '../src/server/telegram';
 import { handleTelegramUpdate } from '../src/server/telegramWebhook';
 import { buildCaregiverState } from '../src/server/caregiverState';
 import { createMemoryPushSender, runPushTick, saveSubscription } from '../src/server/push';
-import { acceptInvite, cancelInvite, createInvite, inviteInfo, listMembers, removeMember } from '../src/server/members';
+import { acceptInvite, cancelInvite, createInvite, inviteInfo, listMembers, removeMember, setMemberGender } from '../src/server/members';
 import { loadCaller } from '../src/server/auth';
 
 let w: Awaited<ReturnType<typeof seedWorld>>;
@@ -242,6 +242,19 @@ describe('escalation ai familiari', () => {
     expect(offline).toHaveLength(1);
   });
 
+  it('tablet offline: «telefonarle», «telefonargli» o «telefonare» secondo il genere di chi è seguito', async () => {
+    for (const [gender, phrase] of [['f', 'Prova a telefonarle.'], ['m', 'Prova a telefonargli.'], ['x', 'Prova a telefonare.']] as const) {
+      const { notifier } = await setup();
+      await db.update(schema.patients).set({ gender }).where(eq(schema.patients.id, w.patient.id));
+      const p = await startPairing(db, 'tablet', at('07:00'));
+      const id = await claimDevice(db, w.patient.id, 'test', { code: p.code }, at('07:00'));
+      await db.update(schema.devices).set({ lastSeenMs: at('08:10') }).where(eq(schema.devices.id, id));
+      await runEscalationTick(db, at('08:50'), notifier);
+      expect(notifier.sent.find((m) => m.text.includes('Sinemet'))!.text).toContain(phrase);
+      w = await seedWorld();
+    }
+  });
+
   it('batteria quasi scarica e non in carica: un avviso, e si chiude quando torna in carica', async () => {
     const { notifier } = await setup();
     const p = await startPairing(db, 'tablet', at('07:00'));
@@ -293,7 +306,7 @@ describe('bot Telegram', () => {
     const ev = await db.select().from(schema.doseEvents).where(eq(schema.doseEvents.doseKey, d.key));
     expect(ev).toHaveLength(1);
     expect(ev[0]!.actor).toBe(`telegram:${w.user.id}`);
-    expect(answers).toEqual(['Grazie, te ne occupi tu.', 'Segnato come preso alle 08:53.']);
+    expect(answers).toEqual(['Grazie, te ne occupi tu.', 'Dose segnata come presa alle 08:53.']);
   });
 
   it('una chat sconosciuta non può confermare nulla', async () => {
@@ -456,7 +469,7 @@ describe('familiari invitati', () => {
   const token = (url: string) => url.split('/invito/')[1]!;
 
   it('l\'amministratore crea un invito; la sorella sceglie email e password e finisce in coda alla catena', async () => {
-    const { url } = await createInvite(db, admin(), 'Maria', MORNING);
+    const { url } = await createInvite(db, admin(), 'Maria', 'x', MORNING);
     expect(url).toContain('/invito/');
     expect(await inviteInfo(db, token(url), MORNING)).toMatchObject({ label: 'Maria' });
     const { userId } = await acceptInvite(db, token(url), { name: 'Maria', email: 'maria@example.com', password: 'una-password-lunga' }, MORNING + 1000);
@@ -470,28 +483,58 @@ describe('familiari invitati', () => {
   });
 
   it('il link vale una sola volta, scade dopo 7 giorni e si può annullare', async () => {
-    const a = await createInvite(db, admin(), 'Maria', MORNING);
+    const a = await createInvite(db, admin(), 'Maria', 'x', MORNING);
     await acceptInvite(db, token(a.url), { name: 'Maria', email: 'maria@example.com', password: 'una-password-lunga' }, MORNING);
     await expect(acceptInvite(db, token(a.url), { name: 'X', email: 'x@example.com', password: 'una-password-lunga' }, MORNING)).rejects.toThrow(/non è più valido/);
 
-    const b = await createInvite(db, admin(), 'Zia', MORNING);
+    const b = await createInvite(db, admin(), 'Zia', 'x', MORNING);
     await expect(acceptInvite(db, token(b.url), { name: 'Zia', email: 'zia@example.com', password: 'una-password-lunga' }, MORNING + 8 * 86400_000)).rejects.toThrow(/non è più valido/);
 
-    const c = await createInvite(db, admin(), 'Cugino', MORNING);
+    const c = await createInvite(db, admin(), 'Cugino', 'x', MORNING);
     const [row] = await db.select().from(schema.invites).where(eq(schema.invites.label, 'Cugino'));
     await cancelInvite(db, admin(), row!.id);
     expect(await inviteInfo(db, token(c.url), MORNING)).toBeNull();
   });
 
   it('password corta o email già usata sono rifiutate; un familiare semplice non può invitare né togliere', async () => {
-    const { url } = await createInvite(db, admin(), 'Maria', MORNING);
+    const { url } = await createInvite(db, admin(), 'Maria', 'x', MORNING);
     await expect(acceptInvite(db, token(url), { name: 'M', email: 'm@example.com', password: 'corta' }, MORNING)).rejects.toThrow(/almeno 8/);
     await expect(acceptInvite(db, token(url), { name: 'M', email: w.user.email, password: 'una-password-lunga' }, MORNING)).rejects.toThrow(/già un account/);
 
     const maria = await addCaregiver(w.member.circleId, 'Maria', 1, null);
     const asMaria = { circleId: w.member.circleId, role: 'caregiver', userId: maria };
-    await expect(createInvite(db, asMaria, 'Altro', MORNING)).rejects.toThrow(/Solo chi ha creato/);
+    await expect(createInvite(db, asMaria, 'Altro', 'x', MORNING)).rejects.toThrow(/Solo chi ha creato/);
     await expect(removeMember(db, asMaria, w.user.id)).rejects.toThrow(/Solo chi ha creato/);
+  });
+
+  it('il genere scelto da chi invita passa al nuovo familiare, che può cambiarlo; il piano del tablet lo riporta', async () => {
+    const a = await createInvite(db, admin(), 'Maria', 'f', MORNING);
+    expect(await inviteInfo(db, token(a.url), MORNING)).toMatchObject({ gender: 'f' });
+    const { userId } = await acceptInvite(db, token(a.url), { name: 'Maria', email: 'maria@example.com', password: 'una-password-lunga' }, MORNING);
+    const [u] = await db.select().from(schema.users).where(eq(schema.users.id, userId));
+    expect(u!.gender).toBe('f');
+
+    const b = await createInvite(db, admin(), 'Paolo', 'x', MORNING);
+    const other = await acceptInvite(db, token(b.url), { name: 'Paolo', email: 'paolo@example.com', password: 'una-password-lunga', gender: 'm' }, MORNING);
+    const [p] = await db.select().from(schema.users).where(eq(schema.users.id, other.userId));
+    expect(p!.gender).toBe('m');
+
+    // sul tablet il «contatto» è il primo della catena (Giovanni): si dichiara maschio e il piano lo riporta
+    await setMemberGender(db, admin(), w.user.id, 'm');
+    expect(await buildPlan(db, w.patient.id, MORNING)).toMatchObject({ contactGender: 'm', patient: { gender: 'x' } });
+    await updatePatient(db, w.patient.id, 'test', { gender: 'f' }, MORNING);
+    expect((await buildPlan(db, w.patient.id, MORNING))!.patient.gender).toBe('f');
+  });
+
+  it('il genere si cambia da sé; solo l\'amministratore lo cambia agli altri', async () => {
+    const maria = await addCaregiver(w.member.circleId, 'Maria', 1, null);
+    const zia = await addCaregiver(w.member.circleId, 'Zia', 2, null);
+    const asMaria = { circleId: w.member.circleId, role: 'caregiver', userId: maria };
+    await setMemberGender(db, asMaria, maria, 'f');
+    await expect(setMemberGender(db, asMaria, zia, 'f')).rejects.toThrow(/Solo chi ha creato/);
+    await setMemberGender(db, admin(), zia, 'f');
+    const list = await listMembers(db, w.member.circleId, w.user.id, MORNING);
+    expect(list.members.filter((m) => m.gender === 'f').map((m) => m.name).sort()).toEqual(['Maria', 'Zia']);
   });
 
   it('l\'amministratore può togliere un familiare ma non sé stesso', async () => {

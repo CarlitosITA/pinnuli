@@ -1,6 +1,8 @@
 import { and, between, eq, gte, inArray, sql } from 'drizzle-orm';
 import {
   addDays,
+  asGender,
+  type Gender,
   generateDoses,
   patientDay,
   type Dose,
@@ -254,7 +256,7 @@ export interface Plan {
   serverNow: number;
   version: number;
   day: string;
-  patient: { id: string; name: string; tz: string; routine: PatientRow['routine']; settings: PatientSettings; paused: boolean };
+  patient: { id: string; name: string; gender: Gender; tz: string; routine: PatientRow['routine']; settings: PatientSettings; paused: boolean };
   medications: Medication[];
   doses: Dose[];
   events: DoseEvent[];
@@ -262,6 +264,8 @@ export interface Plan {
   wake: { needed: boolean; at: number | null };
   /** Nome del familiare da chiamare se il tablet non riesce a collegarsi. */
   contact: string | null;
+  /** Genere di chi viene chiamato: serve a dire «è stata avvisata» o «è stato avvisato». */
+  contactGender: Gender;
 }
 
 /** Piano per i dispositivi: ieri, oggi e i prossimi 3 giorni (≥ 72 ore), con gli eventi di quelle dosi. */
@@ -281,7 +285,7 @@ export async function buildPlan(db: Db, patientId: string, now = Date.now()): Pr
     (r) => r.timing.kind === 'wake' && activeMeds.has(r.medicationId) && r.startDate <= today && (!r.endDate || r.endDate >= today),
   );
   const [first] = await db
-    .select({ name: schema.users.name })
+    .select({ name: schema.users.name, gender: schema.users.gender })
     .from(schema.memberships)
     .innerJoin(schema.users, eq(schema.users.id, schema.memberships.userId))
     .where(eq(schema.memberships.circleId, patient.circleId))
@@ -291,12 +295,13 @@ export async function buildPlan(db: Db, patientId: string, now = Date.now()): Pr
     serverNow: now,
     version: patient.version,
     day: today,
-    patient: { id: patient.id, name: patient.name, tz: patient.tz, routine: patient.routine, settings: patient.settings, paused: patient.paused },
+    patient: { id: patient.id, name: patient.name, gender: asGender(patient.gender), tz: patient.tz, routine: patient.routine, settings: patient.settings, paused: patient.paused },
     medications: meds.filter((m) => m.status !== 'archived').map(toMedication),
     doses: ds,
     events,
     wake: { needed: wakeNeeded && !patient.paused, at: wakeRow?.atMs ?? null },
     contact: first?.name ?? null,
+    contactGender: asGender(first?.gender),
   };
 }
 

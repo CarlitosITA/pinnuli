@@ -2,6 +2,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm';
 import {
   addDays,
   buildViews,
+  byGender,
   deviceHealth,
   escalationKind,
   formatLocalTime,
@@ -198,7 +199,7 @@ export async function runEscalationTick(db: Db, now: number, notifier: Notifier)
       let message: string;
       if (kind === 'device-offline') {
         const since = lastSeen ? Math.round((now - lastSeen) / 60_000) : null;
-        message = `Il tablet di ${patient.name} è offline${since ? ` da ${minutesWord(since)}` : ''}: non sappiamo se ha preso ${names.join(', ')}. Prova a telefonarle.`;
+        message = `Il tablet di ${patient.name} è offline${since ? ` da ${minutesWord(since)}` : ''}: non sappiamo se ha preso ${names.join(', ')}. ${byGender(patient.gender, { f: 'Prova a telefonarle', m: 'Prova a telefonargli', x: 'Prova a telefonare' })}.`;
       } else {
         message =
           list.length === 1

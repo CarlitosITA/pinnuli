@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { formatLocalTime, type DoseView, type GroupView, type PatientScreen } from '@pinnuli/core';
+import { byGender, formatLocalTime, type Gender, type DoseView, type GroupView, type PatientScreen } from '@pinnuli/core';
 import { Alert, Bell, Check, Clock, InstructionGlyph, Logo, StatusDot } from '@/components/icons';
 import { Pill } from '@/components/Pill';
 import { PressButton } from '@/components/PressButton';
@@ -234,7 +234,7 @@ export function IdleScreen({
               {all.length - done > 0 ? `${all.length - done} ancora da prendere` : 'Tutto fatto per oggi'}
             </span>
             <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              {plan.contact ? `${plan.contact} è collegato` : ''}
+              {plan.contact ? `${plan.contact} ${byGender(plan.contactGender, { f: 'è collegata', m: 'è collegato', x: 'è in linea' })}` : ''}
             </span>
           </div>
         </section>
@@ -356,7 +356,7 @@ export function ReminderScreen({
 
       <footer className="pt-foot-msg">
         <span>{r.insistent ? 'Il suono si ripete finché non rispondi.' : 'Il suono si ripete se non rispondi.'}</span>
-        <span>{toAlert > 0 ? `Se non rispondi entro ${toAlert} minuti avviso ${contact}.` : `Se non rispondi, ${contact} viene avvisato.`}</span>
+        <span>{toAlert > 0 ? `Se non rispondi entro ${toAlert} minuti avviso ${contact}.` : `Se non rispondi, ${contact} ${byGender(plan.contactGender, { f: 'viene avvisata', m: 'viene avvisato', x: 'riceve un avviso' })}.`}</span>
       </footer>
     </main>
   );
@@ -474,7 +474,7 @@ export function DoneScreen({
           Va bene
         </PressButton>
       </div>
-      <p style={{ textAlign: 'center', fontSize: '1.375rem', opacity: 0.9, margin: 0 }}>Tra {secondsLeft} secondi torno da solo alla tua giornata.</p>
+      <p style={{ textAlign: 'center', fontSize: '1.375rem', opacity: 0.9, margin: 0 }}>Tra {secondsLeft} secondi si torna alla tua giornata.</p>
     </main>
   );
 }
@@ -529,7 +529,7 @@ export function MissedScreen({
       </div>
       <footer className="pt-foot-msg">
         <span>Non prenderne due insieme: controlla bene prima di toccare.</span>
-        <span>{plan.contact ? `${plan.contact} è stato avvisato.` : ''}</span>
+        <span>{plan.contact ? `${plan.contact} ${byGender(plan.contactGender, { f: 'è stata avvisata', m: 'è stato avvisato', x: 'ha ricevuto un avviso' })}.` : ''}</span>
       </footer>
     </main>
   );
@@ -665,13 +665,14 @@ export function PairScreen({ code, offline, install = false }: { code: string | 
   );
 }
 
-export function StaleScreen({ contact }: { contact: string | null }) {
+export function StaleScreen({ contact, gender }: { contact: string | null; gender: Gender }) {
+  const tells = byGender(gender, { f: 'ti dice lei', m: 'ti dice lui', x: 'ti dice' });
   return (
     <main className="pt pt--question" data-screen="stale">
       <div className="pt-center">
         <Alert size="8rem" />
         <h1>Non riesco a collegarmi</h1>
-        <p>{contact ? `Chiama ${contact}: ti dice lui quali medicine prendere.` : 'Chiama un familiare: ti dice lui quali medicine prendere.'}</p>
+        <p>{contact ? `Chiama ${contact}: ${tells} quali medicine prendere.` : 'Chiama un familiare: ti dice quali medicine prendere.'}</p>
       </div>
     </main>
   );
