@@ -12,7 +12,20 @@ app.pinnuli.it {
 	}
 }
 
-# Tutti gli altri nomi portano all'app (una landing separata arriverà dopo).
-pinnuli.it, www.pinnuli.it, pinnuli.com, www.pinnuli.com, app.pinnuli.com {
+# Landing statica: i file di site/ (index.html, favicon.svg) stanno sulla VPS in ~/caddy-extra/pinnuli-site/,
+# che il container Caddy vede come /etc/caddy/extra/pinnuli-site (il Caddyfile importa solo *.caddy).
+pinnuli.it {
+	encode zstd gzip
+	root * /etc/caddy/extra/pinnuli-site
+	file_server
+	header Cache-Control "public, max-age=300"
+}
+
+# Gli altri nomi portano alla landing; app.pinnuli.com porta all'app.
+www.pinnuli.it, pinnuli.com, www.pinnuli.com {
+	redir https://pinnuli.it{uri} permanent
+}
+
+app.pinnuli.com {
 	redir https://app.pinnuli.it{uri} permanent
 }
