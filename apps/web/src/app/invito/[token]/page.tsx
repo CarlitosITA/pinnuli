@@ -28,5 +28,5 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       </main>
     );
   }
-  return <InviteForm token={token} label={info.label} patient={info.patient} inviter={info.inviter} />;
+  return <InviteForm token={token} label={info.label} patient={info.patient} inviter={info.inviter} gender={info.gender} />;
 }

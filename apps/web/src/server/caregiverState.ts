@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import {
   addDays,
+  asGender,
   buildViews,
   deviceHealth,
   groupDoses,
@@ -184,7 +185,7 @@ export async function buildTherapyView(db: Db, patientId: string, now = Date.now
   ]);
   return {
     today,
-    patient: { id: patient.id, name: patient.name, routine: patient.routine, settings: patient.settings, paused: patient.paused, pin: patient.pin },
+    patient: { id: patient.id, name: patient.name, gender: asGender(patient.gender), routine: patient.routine, settings: patient.settings, paused: patient.paused, pin: patient.pin },
     medications: meds
       .filter((m) => m.status !== 'archived')
       .sort((a, b) => a.name.localeCompare(b.name))

@@ -9,3 +9,4 @@ export * from './screen';
 export * from './escalation';
 export * from './speech';
 export * from './pinnuli-therapy';
+export * from './gender';

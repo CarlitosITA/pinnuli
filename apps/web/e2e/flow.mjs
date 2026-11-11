@@ -99,6 +99,7 @@ try {
   // 6. Un secondo familiare (la sorella) viene invitato con un link e sceglie da sé email e password.
   await cg.goto(`${BASE}/app/altro`);
   await cg.fill('#inv-name', 'Maria');
+  await cg.selectOption('#inv-gender', 'f');
   await cg.click('form:has(#inv-name) button[type=submit]');
   await cg.waitForSelector('input[aria-label="Link d’invito"]');
   const inviteUrl = await cg.inputValue('input[aria-label="Link d’invito"]');
@@ -108,6 +109,7 @@ try {
   const sp = await sister.newPage();
   await sp.goto(inviteUrl.replace(/^https?:\/\/[^/]+/, BASE));
   await sp.waitForSelector('#email');
+  assert.equal(await sp.inputValue('#gender'), 'f', 'il genere scelto da chi invita arriva nel modulo');
   await axeViolations(sp, '/invito');
   await sp.fill('#email', 'maria@example.com');
   await sp.fill('#password', 'una-password-lunga');
@@ -119,6 +121,8 @@ try {
   const again = await sister.newPage();
   await again.goto(inviteUrl.replace(/^https?:\/\/[^/]+/, BASE));
   assert.match(await again.innerText('body'), /non è più valido/);
+  await sp.waitForSelector('select[aria-label="Come si scrive di Maria"]');
+  assert.equal(await sp.inputValue('select[aria-label="Come si scrive di Maria"]'), 'f');
   console.log('  ✓ invito e secondo familiare');
 
   // 7. Controllo di accessibilità sulle pagine del familiare.

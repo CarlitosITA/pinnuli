@@ -256,6 +256,7 @@ export async function setRoutineOverride(
 
 export const patientPatch = z.object({
   name: z.string().trim().min(1).max(60).optional(),
+  gender: z.enum(['f', 'm', 'x']).optional(),
   routine: z.record(z.enum(MOMENTS), hhmm).optional(),
   paused: z.boolean().optional(),
   pin: z.string().regex(/^\d{4}$/, 'Il PIN è di 4 cifre').optional(),
@@ -275,6 +276,7 @@ export async function updatePatient(db: Db, patientId: string, actor: string, pa
   if (!p) throw new CommandError('Paziente non trovato', 404);
   const set: Partial<typeof patients.$inferInsert> = {};
   if (patch.name !== undefined) set.name = patch.name;
+  if (patch.gender !== undefined) set.gender = patch.gender;
   if (patch.paused !== undefined) set.paused = patch.paused;
   if (patch.pin !== undefined) set.pin = patch.pin;
   if (patch.routine) set.routine = { ...p.routine, ...patch.routine };
@@ -283,7 +285,7 @@ export async function updatePatient(db: Db, patientId: string, actor: string, pa
   await db.update(patients).set(set).where(eq(patients.id, patientId));
   const { pin: _pin, ...safe } = set;
   void _pin;
-  await audit(db, { patientId, actor, action: 'update', entity: 'patient', entityId: patientId, before: { name: p.name, paused: p.paused, routine: p.routine, settings: p.settings }, after: safe }, now);
+  await audit(db, { patientId, actor, action: 'update', entity: 'patient', entityId: patientId, before: { name: p.name, gender: p.gender, paused: p.paused, routine: p.routine, settings: p.settings }, after: safe }, now);
   await after(db, patientId, now);
 }
 

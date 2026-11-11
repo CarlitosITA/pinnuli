@@ -26,6 +26,8 @@ npm run worker                                 # in un altro terminale: promemor
 - **Tablet**: aprire `/t`, compare un codice di 6 cifre. Dal telefono (`/app` → *Altro*) il familiare lo inserisce e il tablet si collega.
 - **Telefono al posto del tablet**: aprire `/t` anche sul telefono; si collega con lo stesso codice. Sul telefono compare la proposta «Attiva gli avvisi» (notifiche push, anche a schermo spento): Android dal browser, iPhone dopo «Aggiungi alla schermata Home». Le notifiche richiedono le chiavi VAPID (`npx web-push generate-vapid-keys`, poi `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`) e il worker in esecuzione.
 - **Altri familiari**: da *Altro* → *Familiari* → «Crea l’invito». Il link (vale 7 giorni, una volta sola) lo apre la persona invitata, che sceglie da sé email e password. Gli avvisi arrivano in ordine, uno dopo l’altro.
+- **Genere nelle frasi**: per *Per {nome}* (la persona seguita) e per ogni familiare si può indicare donna, uomo o non specificato; serve solo a scrivere i messaggi nella forma giusta («avvisata» / «avvisato», «telefonarle» / «telefonargli»). Non specificato usa frasi senza desinenze. Il seed legge `PATIENT_GENDER` e `ADMIN_GENDER` (`f`, `m`, `x`).
+
 - **Familiare**: `/login`, poi *Oggi*, *Terapia*, *Storico*, *Altro*.
 - La terapia di esempio (orari dei pasti 13:00 e 20:00, dosi) è modificabile da *Terapia*. `SEED_THERAPY=0` crea solo utente e paziente.
 

@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { MOMENTS, type MomentKey } from '@pinnuli/core';
 import type { CaregiverState } from '@/server/caregiverState';
-import { ago, api, Field, useLive, useToast } from '../ui';
+import { ago, api, Field, GenderSelect, useLive, useToast } from '../ui';
 import { MOMENT_NAME } from '../terapia/therapy-text';
 
 interface TherapySlice {
   patient: {
     name: string;
+    gender: 'f' | 'm' | 'x';
     paused: boolean;
     routine: Record<MomentKey, string>;
     settings: { debounceMs: number; holdToConfirm: boolean; textLevel: 'grande' | 'moltoGrande' | 'enorme' };
@@ -16,7 +17,7 @@ interface TherapySlice {
 }
 interface MembersState {
   admin: boolean;
-  members: { userId: string; name: string; email: string; role: string; telegram: boolean; me: boolean }[];
+  members: { userId: string; name: string; email: string; role: string; gender: 'f' | 'm' | 'x'; telegram: boolean; me: boolean }[];
   invites: { id: string; label: string; expiresAtMs: number }[];
 }
 interface TelegramState {
@@ -38,6 +39,7 @@ export default function MoreView() {
   const [tg, setTg] = useState<TelegramState | null>(null);
   const [people, setPeople] = useState<MembersState | null>(null);
   const [inviteName, setInviteName] = useState('');
+  const [inviteGender, setInviteGender] = useState<'f' | 'm' | 'x'>('x');
   const [inviteUrl, setInviteUrl] = useState<{ label: string; url: string } | null>(null);
   const [tgLink, setTgLink] = useState<{ code: string; link: string | null } | null>(null);
   const [code, setCode] = useState('');
@@ -147,6 +149,14 @@ export default function MoreView() {
                   {m.email} · {m.role === 'admin' ? 'amministratore' : 'familiare'} · Telegram {m.telegram ? 'collegato' : 'non collegato'}
                 </p>
               </div>
+              {people.admin || m.me ? (
+                <GenderSelect
+                  id={`g-${m.userId}`}
+                  label={`Come si scrive di ${m.name}`}
+                  value={m.gender}
+                  onChange={(g) => void run(async () => { await api('PATCH', `/api/app/members/${m.userId}`, { gender: g }); await loadPeople(); }, 'Salvato')}
+                />
+              ) : null}
               {people.admin && !m.me && m.role !== 'admin' ? (
                 <button
                   className="cg-btn quiet"
@@ -209,7 +219,7 @@ export default function MoreView() {
               onSubmit={(e) => {
                 e.preventDefault();
                 void run(async () => {
-                  const r = await api<{ url: string }>('POST', '/api/app/invites', { label: inviteName.trim() });
+                  const r = await api<{ url: string }>('POST', '/api/app/invites', { label: inviteName.trim(), gender: inviteGender });
                   setInviteUrl({ label: inviteName.trim(), url: r.url });
                   setInviteName('');
                   await loadPeople();
@@ -218,6 +228,9 @@ export default function MoreView() {
             >
               <Field label="Invita un altro familiare" hint="Scrivi il suo nome (per esempio «Maria»): ti darò un link da mandarle." htmlFor="inv-name">
                 <input id="inv-name" type="text" maxLength={40} value={inviteName} onChange={(e) => setInviteName(e.target.value)} required />
+              </Field>
+              <Field label="Come si scrive di questa persona" hint="Serve a dire «avvisata» o «avvisato». Potrà cambiarlo lei." htmlFor="inv-gender">
+                <GenderSelect id="inv-gender" value={inviteGender} onChange={setInviteGender} />
               </Field>
               <button className="cg-btn primary" type="submit" style={{ marginTop: '0.75rem' }}>
                 Crea l’invito
@@ -269,6 +282,10 @@ export default function MoreView() {
         <button className="cg-btn" disabled={!name.trim() || name === p.name} onClick={() => void patch({ name: name.trim() })}>
           Salva il nome
         </button>
+
+        <Field label={`Come si scrive di ${p.name}`} hint="Serve solo a scrivere i messaggi nella forma giusta (per esempio «telefonarle» o «telefonargli»)." htmlFor="p-gender">
+          <GenderSelect id="p-gender" value={p.gender} onChange={(g) => void patch({ gender: g })} />
+        </Field>
 
         <Field label="Grandezza del testo sul tablet" htmlFor="p-text">
           <select id="p-text" value={p.settings.textLevel} onChange={(e) => void patch({ settings: { textLevel: e.target.value } })}>

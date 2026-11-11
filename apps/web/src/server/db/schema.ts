@@ -30,6 +30,8 @@ export const users = pgTable(
     id: text('id').primaryKey(),
     email: text('email').notNull(),
     name: text('name').notNull(),
+    /** f | m | x (non specificato): serve solo a declinare le frasi che parlano di questa persona. */
+    gender: text('gender').notNull().default('x'),
     passwordHash: text('password_hash'),
     createdAt: createdAt(),
   },
@@ -64,6 +66,8 @@ export const invites = pgTable(
     tokenHash: text('token_hash').notNull(),
     /** Come lo chiama chi invita, per riconoscerlo nell'elenco (es. «Maria»). */
     label: text('label').notNull(),
+    /** Genere di chi si invita (f | m | x): chi accetta lo può cambiare. */
+    gender: text('gender').notNull().default('x'),
     createdBy: text('created_by').notNull(),
     createdAtMs: ms('created_at_ms').notNull(),
     expiresAtMs: ms('expires_at_ms').notNull(),
@@ -76,6 +80,8 @@ export const patients = pgTable('patients', {
   id: text('id').primaryKey(),
   circleId: text('circle_id').notNull().references(() => circles.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
+  /** f | m | x (non specificato). */
+  gender: text('gender').notNull().default('x'),
   tz: text('tz').notNull().default('Europe/Rome'),
   routine: jsonb('routine').$type<Routine>().notNull(),
   settings: jsonb('settings').$type<PatientSettings>().notNull(),

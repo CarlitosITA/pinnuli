@@ -5,6 +5,7 @@ import {
   SEED_ROUTINE,
   SEED_RULES,
   addDays,
+  asGender,
   patientDay,
 } from '@pinnuli/core';
 import { audit } from '../audit';
@@ -72,6 +73,7 @@ export async function seed(db: Db = getDb(), now = Date.now()) {
     id: userId,
     email,
     name: process.env.ADMIN_NAME ?? 'Giovanni',
+    gender: asGender(process.env.ADMIN_GENDER),
     passwordHash: await hashPassword(password),
   });
   await db.insert(schema.memberships).values({ userId, circleId, role: 'admin', chainPosition: 0 });
@@ -79,6 +81,7 @@ export async function seed(db: Db = getDb(), now = Date.now()) {
     id: patientId,
     circleId,
     name,
+    gender: asGender(process.env.PATIENT_GENDER),
     tz: 'Europe/Rome',
     routine: SEED_ROUTINE,
     settings: DEFAULT_SETTINGS,

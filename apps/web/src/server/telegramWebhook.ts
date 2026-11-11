@@ -75,6 +75,6 @@ export async function handleTelegramUpdate(db: Db, update: TelegramUpdate, deps:
       if (a.doseKey) await caregiverDoseAction(db, patient.id, `telegram:${mem.userId}`, { doseKey: a.doseKey, type: 'taken' }, now);
     }
     await audit(db, { patientId: patient.id, actor: `telegram:${mem.userId}`, action: 'confirm-from-alert', entity: 'alert', entityId: alertId }, now);
-    await deps.answerCallback?.(cb.id, `Segnato come preso alle ${formatLocalTime(now, patient.tz)}.`);
+    await deps.answerCallback?.(cb.id, `Dose segnata come presa alle ${formatLocalTime(now, patient.tz)}.`);
   }
 }
